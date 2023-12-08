@@ -1,0 +1,13 @@
+train: C:/WorkSpace/0.AI/ai-ui/s2c_data/train/images
+val: C:/WorkSpace/0.AI/ai-ui/s2c_data/valid/images
+test: C:/WorkSpace/0.AI/ai-ui/s2c_data/test_image/images
+
+nc: 8
+names: ['button', 'checkbox', 'div', 'image', 'label', 'radiobutton', 'select', 'textbox']
+
+roboflow:
+  workspace: uludag-university-h6hqr
+  project: sketch2code-7ucvp
+  version: 3
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/uludag-university-h6hqr/sketch2code-7ucvp/dataset/3
