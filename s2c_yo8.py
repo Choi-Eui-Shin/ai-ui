@@ -66,12 +66,30 @@ def prediction():
     - path: 이미지 파일의 경로를 나타내는 문자열입니다.
     - _keys: 비어 있지 않은 속성의 이름을 나타내는 튜플입니다.
     """
-    # 예측 결과를 출력합니다.
-    boxObj = results[0].boxes
 
-    print(f'xyxy = {boxObj.xyxy.tolist()}')
-    print(f'cls = {boxObj.cls.tolist()}')
-    print(f'conf = {boxObj.conf.tolist()}')
+
+    # 예측 결과를 출력합니다.
+    names_dic = results[0].names
+    box_obj = results[0].boxes
+
+    xyxy_list = box_obj.xyxy.int().tolist()
+    cls_list = box_obj.cls.int().tolist()
+    conf_list = box_obj.conf.tolist()
+
+    obj_list = []
+    for i in range(len(cls_list)):
+        elm = {
+            'rect': xyxy_list[i],
+            'class': names_dic[cls_list[i]],
+            'confidence': conf_list[i]
+        }
+
+        obj_list.append(elm)
+
+    # print(f'xyxy = {xyxy_list}')
+    # print(f'cls = {cls_list}')
+    # print(f'conf = {conf_list}')
+    print(f'detect = {obj_list}')
 
 
 if __name__ == '__main__':
