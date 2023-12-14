@@ -24,6 +24,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.awt.event.ActionEvent;
+import java.awt.Color;
 
 public class MergeTrainingData extends JPanel implements IExtractProgress
 {
@@ -32,6 +33,7 @@ public class MergeTrainingData extends JPanel implements IExtractProgress
 	private JPanel panel;
 	private JProgressBar progressBar;
 	private JProgressBar zipProgress;
+	private JTextField txtTarget;
 	
 	public MergeTrainingData() {
 		setLayout(new BorderLayout(0, 0));
@@ -137,9 +139,9 @@ public class MergeTrainingData extends JPanel implements IExtractProgress
 		add(panel_1, BorderLayout.CENTER);
 		GridBagLayout gbl_panel_1 = new GridBagLayout();
 		gbl_panel_1.columnWidths = new int[]{0, 0, 0, 0};
-		gbl_panel_1.rowHeights = new int[]{0, 0, 0, 0, 0};
+		gbl_panel_1.rowHeights = new int[]{0, 0, 0, 0, 0, 0};
 		gbl_panel_1.columnWeights = new double[]{0.0, 1.0, 0.0, Double.MIN_VALUE};
-		gbl_panel_1.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_1.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		panel_1.setLayout(gbl_panel_1);
 		
 		JLabel lblNewLabel = new JLabel("입력 폴더");
@@ -225,6 +227,25 @@ public class MergeTrainingData extends JPanel implements IExtractProgress
 		gbc_progressBar.gridy = 2;
 		panel_1.add(progressBar, gbc_progressBar);
 		
+		JLabel lblNewLabel_3 = new JLabel("대상 파일");
+		GridBagConstraints gbc_lblNewLabel_3 = new GridBagConstraints();
+		gbc_lblNewLabel_3.anchor = GridBagConstraints.EAST;
+		gbc_lblNewLabel_3.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_3.gridx = 0;
+		gbc_lblNewLabel_3.gridy = 3;
+		panel_1.add(lblNewLabel_3, gbc_lblNewLabel_3);
+		
+		txtTarget = new JTextField();
+		txtTarget.setBackground(Color.WHITE);
+		txtTarget.setEditable(false);
+		GridBagConstraints gbc_txtTarget = new GridBagConstraints();
+		gbc_txtTarget.insets = new Insets(0, 0, 5, 5);
+		gbc_txtTarget.fill = GridBagConstraints.HORIZONTAL;
+		gbc_txtTarget.gridx = 1;
+		gbc_txtTarget.gridy = 3;
+		panel_1.add(txtTarget, gbc_txtTarget);
+		txtTarget.setColumns(10);
+		
 		zipProgress = new JProgressBar();
 		zipProgress.setPreferredSize(new Dimension(146, 20));
 		zipProgress.setMinimumSize(new Dimension(10, 20));
@@ -233,7 +254,7 @@ public class MergeTrainingData extends JPanel implements IExtractProgress
 		gbc_zipProgress.fill = GridBagConstraints.HORIZONTAL;
 		gbc_zipProgress.insets = new Insets(0, 0, 0, 5);
 		gbc_zipProgress.gridx = 1;
-		gbc_zipProgress.gridy = 3;
+		gbc_zipProgress.gridy = 4;
 		panel_1.add(zipProgress, gbc_zipProgress);
 	}
 	
@@ -277,7 +298,6 @@ public class MergeTrainingData extends JPanel implements IExtractProgress
 		}
 	}
 	
-	
 	/**
 	 * @param root
 	 * @param cntr
@@ -291,7 +311,9 @@ public class MergeTrainingData extends JPanel implements IExtractProgress
 	}
 	
 	@Override
-	public void process(int max, int value) {
+	public void process(String filename, int max, int value) {
+		txtTarget.setText(filename);
+		
 		zipProgress.setMaximum(max);
 		zipProgress.setValue(value);
 	}
@@ -317,7 +339,7 @@ public class MergeTrainingData extends JPanel implements IExtractProgress
 			});
 
 			main.pack();
-			main.setSize(450, 200);
+			main.setSize(500, 220);
 			Utils.locationCenter(main);
 			main.show();
 		} catch (Exception ex) {

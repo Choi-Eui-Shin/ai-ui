@@ -1,5 +1,5 @@
 package com.choi;
 
 public interface IExtractProgress {
-	public void process(int max, int value);
+	public void process(String filename, int max, int value);
 }

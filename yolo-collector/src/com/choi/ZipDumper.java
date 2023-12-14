@@ -83,9 +83,6 @@ public class ZipDumper {
 			
 			for(int i = 0; i < allFiles.size(); i++) {
 				FileHeader fh = allFiles.get(i);
-				if(monitor != null)
-					monitor.process(allFiles.size(), i+1);
-
 				/*
 				 * part[0] - category: train, valid, test
 				 * part[1] - images , labels
@@ -97,6 +94,9 @@ public class ZipDumper {
 				
 				String id = part[2].substring(0, part[2].lastIndexOf("."));
 				
+				if(monitor != null)
+					monitor.process(id, allFiles.size(), i+1);
+
 				if(part[2].endsWith("txt")) {
 					/*
 					 * 라벨 데이터는 내용을 읽어 데이터베이스에 저장한다.
@@ -212,10 +212,16 @@ public class ZipDumper {
 //			ZipDumper zdr = new ZipDumper("C:\\PerfLogs\\Sketch2aia - Dataset 3.v5-auto-orient-no-aug.yolov8.zip", "C:\\PerfLogs", yoloDao);
 //			ZipDumper zdr = new ZipDumper("C:\\PerfLogs\\Sketch2aia - New Dataset.v6-640x640-remapped-slightly-rotated.yolov8.zip", "C:\\PerfLogs", yoloDao);
 //			ZipDumper zdr = new ZipDumper("C:\\PerfLogs\\Sketch2Penpot.v1i.yolov8.zip", "C:\\PerfLogs", yoloDao);
-			zdr.extract(null);
+			zdr.extract(new IExtractProgress() {
+				@Override
+				public void process(String filename, int max, int value) {
+					System.out.println(filename);
+				}
+			});
 //			zdr.saveLabel();
 			
 		}catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 }
