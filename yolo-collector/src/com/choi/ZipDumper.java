@@ -25,10 +25,12 @@ public class ZipDumper {
 
 	private String zipFile;
 	private String outputFolder;
+	private YoloDao yoloDao;
 	
-	public ZipDumper(String zipFile, String out) {
+	public ZipDumper(String zipFile, String out, YoloDao yoloDao) {
 		this.zipFile = zipFile;
 		this.outputFolder = out;
+		this.yoloDao = yoloDao;
 		
 		try {
 			File rootDir = new File(out);
@@ -60,17 +62,11 @@ public class ZipDumper {
 	/**
 	 * @return
 	 */
-	public boolean extract() {
+	public boolean extract(IExtractProgress monitor) {
 		boolean rs = false;
 		
 		ZipFile zip = new ZipFile(zipFile);
-		YoloDao yoloDao = null;
-		
 		try {
-			yoloDao = new YoloDao();
-			yoloDao.init();
-			yoloDao.clear();
-			
 			/*
 			 * data.yaml 파일에서 클래스를 추출한다.
 			 */
@@ -83,9 +79,13 @@ public class ZipDumper {
 			allFiles = allFiles.stream().filter(
 					m -> m.getFileName().startsWith("train") ||
 						m.getFileName().startsWith("test") ||
-						m.getFileName().startsWith("test")).toList();
+						m.getFileName().startsWith("valid")).toList();
 			
-			for(FileHeader fh : allFiles) {
+			for(int i = 0; i < allFiles.size(); i++) {
+				FileHeader fh = allFiles.get(i);
+				if(monitor != null)
+					monitor.process(allFiles.size(), i+1);
+
 				/*
 				 * part[0] - category: train, valid, test
 				 * part[1] - images , labels
@@ -194,8 +194,28 @@ public class ZipDumper {
 	}
 	
 	public static void main(String [] args) {
-		ZipDumper zdr = new ZipDumper("C:\\PerfLogs\\Sketch2Code.v3i.yolov8.zip", "C:\\PerfLogs");
-//		zdr.extract();
-		zdr.saveLabel();
+		try {
+			YoloDao yoloDao = new YoloDao();
+			yoloDao.init();
+			yoloDao.clear();
+			/*
+				Html Merged Comps.v4i.yolov8.zip: 640x640
+				Projeto_2.v1i.yolov8.zip: 640x640
+				Sketch2aia - Dataset 3.v5-auto-orient-no-aug.yolov8: 가변
+				Sketch2aia - New Dataset.v6-640x640-remapped-slightly-rotated.yolov8: 640 x 640
+				Sketch2Code.v3i.yolov8: 640 x 640
+				Sketch2Penpot.v1i.yolov8: 가변
+			*/
+			ZipDumper zdr = new ZipDumper("C:\\PerfLogs\\Sketch2Code.v3i.yolov8.zip", "C:\\PerfLogs", yoloDao);
+//			ZipDumper zdr = new ZipDumper("C:\\PerfLogs\\Html Merged Comps.v4i.yolov8.zip", "C:\\PerfLogs", yoloDao);
+//			ZipDumper zdr = new ZipDumper("C:\\PerfLogs\\Projeto_2.v1i.yolov8.zip", "C:\\PerfLogs", yoloDao);
+//			ZipDumper zdr = new ZipDumper("C:\\PerfLogs\\Sketch2aia - Dataset 3.v5-auto-orient-no-aug.yolov8.zip", "C:\\PerfLogs", yoloDao);
+//			ZipDumper zdr = new ZipDumper("C:\\PerfLogs\\Sketch2aia - New Dataset.v6-640x640-remapped-slightly-rotated.yolov8.zip", "C:\\PerfLogs", yoloDao);
+//			ZipDumper zdr = new ZipDumper("C:\\PerfLogs\\Sketch2Penpot.v1i.yolov8.zip", "C:\\PerfLogs", yoloDao);
+			zdr.extract(null);
+//			zdr.saveLabel();
+			
+		}catch(Exception e) {
+		}
 	}
 }

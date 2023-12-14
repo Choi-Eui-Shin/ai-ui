@@ -25,11 +25,13 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.awt.event.ActionEvent;
 
-public class MergeTrainingData extends JPanel {
+public class MergeTrainingData extends JPanel implements IExtractProgress
+{
 	private JTextField txtSrc;
 	private JTextField txtOut;
 	private JPanel panel;
 	private JProgressBar progressBar;
+	private JProgressBar zipProgress;
 	
 	public MergeTrainingData() {
 		setLayout(new BorderLayout(0, 0));
@@ -90,8 +92,11 @@ public class MergeTrainingData extends JPanel {
 						// 버튼 처리
 						_enableButtons(panel, false);
 						Utils.working(MergeTrainingData.this);
+						
+						YoloDao yoloDao = new YoloDao();
+						yoloDao.init();
 
-						ZipDumper zdr = new ZipDumper(null, outFolder);
+						ZipDumper zdr = new ZipDumper(null, outFolder, yoloDao);
 						zdr.saveLabel();
 						
 						// 버튼 처리
@@ -132,9 +137,9 @@ public class MergeTrainingData extends JPanel {
 		add(panel_1, BorderLayout.CENTER);
 		GridBagLayout gbl_panel_1 = new GridBagLayout();
 		gbl_panel_1.columnWidths = new int[]{0, 0, 0, 0};
-		gbl_panel_1.rowHeights = new int[]{0, 0, 0, 0};
+		gbl_panel_1.rowHeights = new int[]{0, 0, 0, 0, 0};
 		gbl_panel_1.columnWeights = new double[]{0.0, 1.0, 0.0, Double.MIN_VALUE};
-		gbl_panel_1.rowWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_panel_1.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		panel_1.setLayout(gbl_panel_1);
 		
 		JLabel lblNewLabel = new JLabel("입력 폴더");
@@ -201,16 +206,35 @@ public class MergeTrainingData extends JPanel {
 		gbc_btnNewButton_3.gridy = 1;
 		panel_1.add(btnNewButton_3, gbc_btnNewButton_3);
 		
+		JLabel lblNewLabel_2 = new JLabel("전체 진행");
+		GridBagConstraints gbc_lblNewLabel_2 = new GridBagConstraints();
+		gbc_lblNewLabel_2.anchor = GridBagConstraints.EAST;
+		gbc_lblNewLabel_2.insets = new Insets(0, 0, 5, 5);
+		gbc_lblNewLabel_2.gridx = 0;
+		gbc_lblNewLabel_2.gridy = 2;
+		panel_1.add(lblNewLabel_2, gbc_lblNewLabel_2);
+		
 		progressBar = new JProgressBar();
 		progressBar.setMaximumSize(new Dimension(32767, 20));
 		progressBar.setMinimumSize(new Dimension(10, 20));
 		progressBar.setPreferredSize(new Dimension(146, 20));
 		GridBagConstraints gbc_progressBar = new GridBagConstraints();
 		gbc_progressBar.fill = GridBagConstraints.HORIZONTAL;
-		gbc_progressBar.insets = new Insets(0, 0, 0, 5);
+		gbc_progressBar.insets = new Insets(0, 0, 5, 5);
 		gbc_progressBar.gridx = 1;
 		gbc_progressBar.gridy = 2;
 		panel_1.add(progressBar, gbc_progressBar);
+		
+		zipProgress = new JProgressBar();
+		zipProgress.setPreferredSize(new Dimension(146, 20));
+		zipProgress.setMinimumSize(new Dimension(10, 20));
+		zipProgress.setMaximumSize(new Dimension(32767, 20));
+		GridBagConstraints gbc_zipProgress = new GridBagConstraints();
+		gbc_zipProgress.fill = GridBagConstraints.HORIZONTAL;
+		gbc_zipProgress.insets = new Insets(0, 0, 0, 5);
+		gbc_zipProgress.gridx = 1;
+		gbc_zipProgress.gridy = 3;
+		panel_1.add(zipProgress, gbc_zipProgress);
 	}
 	
 	/**
@@ -234,10 +258,22 @@ public class MergeTrainingData extends JPanel {
 		progressBar.setMinimum(0);
 		progressBar.setMaximum(targetList.length);
 		
-		for(File file : targetList) {
-			ZipDumper zdr = new ZipDumper(file.getAbsolutePath(), out);
-			zdr.extract();
-			progressBar.setValue(progressBar.getValue()+1);
+		YoloDao yoloDao = new YoloDao();
+		try {
+			yoloDao.init();
+			yoloDao.clear();
+			
+			for(File file : targetList) {
+				zipProgress.setValue(0);
+				zipProgress.setMinimum(0);
+				zipProgress.setMaximum(0);
+				
+				ZipDumper zdr = new ZipDumper(file.getAbsolutePath(), out, yoloDao);
+				zdr.extract(this);
+				progressBar.setValue(progressBar.getValue()+1);
+			}
+		} catch (YoloException e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -252,6 +288,12 @@ public class MergeTrainingData extends JPanel {
 				root.getComponent(i).setEnabled(cntr);
 			}
 		}
+	}
+	
+	@Override
+	public void process(int max, int value) {
+		zipProgress.setMaximum(max);
+		zipProgress.setValue(value);
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -282,4 +324,5 @@ public class MergeTrainingData extends JPanel {
 			ex.printStackTrace();
 		}
 	}
+
 }
