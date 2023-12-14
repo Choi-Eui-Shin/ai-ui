@@ -152,7 +152,30 @@ public class ZipDumper {
 			Map<String, Integer> mapper = new HashMap<>();
 			
 			String [] classNames = {
-				"button", "checkbox", "div", "image", "label", "radiobutton", "select", "textbox"
+				 "button"
+				,"checkbox"
+				,"container"
+				,"div"
+				,"icon-button"
+				,"image"
+				,"input"
+				,"label"
+				,"link"
+				,"listpicker"
+				,"map"
+				,"number-input"
+				,"radio"
+				,"radiobutton"
+				,"screen"
+				,"search"
+				,"select"
+				,"slider"
+				,"switch"
+				,"table"
+				,"text"
+				,"textarea"
+				,"textbox"
+				,"toggle"
 			};
 			
 			for(int i = 0; i < classNames.length; i++)

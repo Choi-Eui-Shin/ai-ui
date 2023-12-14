@@ -112,7 +112,7 @@ public class Utils {
 					if(line.startsWith("names:")) {
 						String [] tks = line.substring(6).split(",");
 						for(String s : tks) {
-							classList.add(s.replaceAll("[ '\\[\\]]", ""));
+							classList.add(s.replaceAll("[ '\\[\\]]", "").toLowerCase());
 						}
 					}
 				}
