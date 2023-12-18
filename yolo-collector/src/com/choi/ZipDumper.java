@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.StringReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -149,37 +148,7 @@ public class ZipDumper {
 		try {
 			yoloDao = new YoloDao();
 			yoloDao.init();
-			Map<String, Integer> mapper = new HashMap<>();
-			
-			String [] classNames = {
-				 "button"
-				,"checkbox"
-				,"container"
-				,"div"
-				,"icon-button"
-				,"image"
-				,"input"
-				,"label"
-				,"link"
-				,"listpicker"
-				,"map"
-				,"number-input"
-				,"radio"
-				,"radiobutton"
-				,"screen"
-				,"search"
-				,"select"
-				,"slider"
-				,"switch"
-				,"table"
-				,"text"
-				,"textarea"
-				,"textbox"
-				,"toggle"
-			};
-			
-			for(int i = 0; i < classNames.length; i++)
-				mapper.put(classNames[i], i);
+			Map<String, Integer> mapper = yoloDao.getClassMapper();
 			
 			LabelWriter lw = new LabelWriter(outputFolder, mapper);
 			yoloDao.fetchLabel(lw);

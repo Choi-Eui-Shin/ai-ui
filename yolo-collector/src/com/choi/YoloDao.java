@@ -3,6 +3,9 @@ package com.choi;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 
 public class YoloDao {
 	private DBManager db = null;
@@ -116,5 +119,35 @@ public class YoloDao {
 				rs.close();
 			}catch(Exception ig) {}
 		}
+	}
+	
+	/**
+	 * @return
+	 * @throws YoloException
+	 */
+	public Map<String, Integer> getClassMapper() throws YoloException
+	{
+		Map<String, Integer> mapper = new HashMap<>();
+		ResultSet rs = null;
+		Statement st = null;
+		try {
+			st = db.getConnection().createStatement();
+			rs = st.executeQuery("SELECT DISTINCT classId\r\n"
+					+ "FROM   yolo_object\r\n"
+					+ "ORDER BY 1");
+			int index = 0;
+			while(rs.next()) {
+				mapper.put(rs.getString("classId"), index++);
+			}
+		}catch(Exception se) {
+			throw new YoloException(se);
+		}finally {
+			try {
+				rs.close();
+				st.close();
+			}catch(Exception ig) {}
+		}
+		
+		return mapper;
 	}
 }
