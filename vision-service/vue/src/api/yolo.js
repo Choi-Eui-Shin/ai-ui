@@ -1,6 +1,7 @@
 import net from "@/utils/net.js";
 
 /**
+ * 지정된 이미지를 분석하여 UI 요소를 추출한다.
  * 
  * @param {*} imageFile 
  * @returns 
@@ -15,4 +16,14 @@ export function yolov8(imageFile) {
             'Content-Type': 'multipart/form-data'
         }
     });
+}
+
+/**
+ * 지정된 정보를 이용하여 소스코드를 생성한다.
+ * 
+ * @param {*} payload 
+ * @returns 
+ */
+export function generate(payload) {
+    return net.post(`/v1/vision/generate`, payload);
 }

@@ -1,5 +1,6 @@
 package com.choi;
 
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
@@ -30,7 +31,7 @@ public class YoloService {
 	 */
 	public YoloResult predict(byte [] image) throws Exception
 	{
-		YoloResult result = null;
+		YoloResult result = new YoloResult();
 		
 		if("http".equals(yoloServiceUrl) == false) {
 			RestTemplate restTemplate = new RestTemplate();
@@ -47,26 +48,66 @@ public class YoloService {
 		    		yoloServiceUrl + "/v1/yolov8",
 					contentsAsResource,
 					YoloResult.class);
-		    result = responseEntity.getBody();
+		    
+		    YoloResult tmp = responseEntity.getBody();
 		    
 		    System.out.println("@.@ Time = " + (System.currentTimeMillis()-time + " msec"));
 		    
-		    if(!result.isReturnCode()) {
+		    if(!tmp.isReturnCode()) {
 		    	throw new Exception("YOLO 서비스 오류!");
 		    }
 		    
 		    result.setSourceImage(imageToString(image));
+		    
 		    /*
-		     * 경계박스의 크기로 정렬
+		     * 특정 클래스 제외
+		     */
+		    List<YoloObjectEntry> finalList = tmp.getResult().stream().filter(m -> "screen".equals(m.getClassId()) == false).toList();
+		    result.setResult(new ArrayList<>());
+		    result.getResult().addAll(finalList);
+		    
+		    /*
+		     * 모든 객체에 번호를 부여한다.
+		     */
+		    int num = 1;
+		    for(YoloObjectEntry ue : finalList) {
+		    	ue.setDepth(1);
+		    	ue.setNumber(num++);
+		    }
+		    
+		    /*
+		     * 경계박스의 크기로 내림차순 정렬
 		     */
 		    result.getResult().sort(new Comparator<YoloObjectEntry>() {
 				@Override
 				public int compare(YoloObjectEntry o1, YoloObjectEntry o2) {
 					int a1 = o1.area();
 					int a2 = o2.area();
-					return a1 == a2 ? 0 : a1 > a2 ? 1 : -1;
+					return a1 == a2 ? 0 : a1 > a2 ? -1 : 1;
 				}
 			});
+		    
+		    /*
+		     * 영역이 포함 관계에 있는지 검사한다. 
+		     */
+//		    List<YoloObjectEntry> allList = result.getResult();
+//		    for(int i = 0; i < allList.size()-1; i++) {
+//		    	YoloObjectEntry base = allList.get(i);
+//		    	
+//		    	for(int s = i+1; s < allList.size(); s++) {
+//		    		YoloObjectEntry ct = allList.get(s);
+//		    		
+//		    		Rectangle intersection = base.getRect().intersection(ct.getRect());
+//		    		if(intersection != null) {
+//		    			if((double)intersection.area()/(double)base.area() >= 1.0) {
+////		    				System.out.println("@ " + i + "/" + s + " = " + ((double)intersection.area() / (double)base.area()));
+//		    				ct.setDepth(base.getDepth()+1);
+//		    				base.setParentNumber(ct.getNumber());
+//		    				break;
+//		    			}
+//		    		}
+//		    	}
+//		    }
 		    
 		    /*
 		     * 영역이 포함 관계에 있는지 검사한다. 
@@ -77,14 +118,13 @@ public class YoloService {
 		    	
 		    	for(int s = i+1; s < allList.size(); s++) {
 		    		YoloObjectEntry ct = allList.get(s);
-		    		
+		    		// 겹치는 영역을 추출한다.
 		    		Rectangle intersection = base.getRect().intersection(ct.getRect());
 		    		if(intersection != null) {
-		    			if(intersection.area()/base.area() >= 1) {
-		    				int intersectionArea = intersection.area();
-		    				int ctArea = base.area();
-		    				System.out.println("@ " + i + "/" + s + " = " + (intersectionArea / ctArea));
-		    				ct.setDepth(ct.getDepth()+1);
+		    			if((double)ct.area()/(double)intersection.area() == 1.0) {
+		    				System.out.println("@ %d-%d/%d-%d = %f".formatted(i, base.getNumber(), s, ct.getParentNumber(),(double)ct.area()/(double)intersection.area())); 
+		    				ct.setDepth(base.getDepth()+1);
+		    				ct.setParentNumber(base.getNumber());
 		    			}
 		    		}
 		    	}

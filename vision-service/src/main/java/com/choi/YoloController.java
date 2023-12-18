@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.choi.core.UiCodeGenerator;
 import com.choi.vo.GenerateRequest;
 import com.choi.vo.GenerateResponse;
 import com.choi.vo.ResultVO;
@@ -32,6 +33,10 @@ public class YoloController extends BaseRestController
 	@Autowired
 	private YoloService yoloService;
 	
+	/**
+	 * @param payload
+	 * @return
+	 */
 	@PostMapping("/vision/predict")
 	@ApiOperation(value = "객체 인식", notes = "이미지에서 객체를 인식한다.")
 	public ResponseEntity<ResultVO<YoloResult>> predict(@RequestParam("file") MultipartFile payload)
@@ -56,12 +61,24 @@ public class YoloController extends BaseRestController
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 	
-	@PostMapping("/vision/predict")
+	/**
+	 * @param payload
+	 * @return
+	 */
+	@PostMapping("/vision/generate")
 	@ApiOperation(value = "소스코드 생성", notes = "주어진 정보로 소스코드를 생성한다.")
 	public ResponseEntity<ResultVO<GenerateResponse>> generate(@RequestBody GenerateRequest payload)
 	{
+//		System.out.println(payload);
+		
 		ResultVO<GenerateResponse> result = new ResultVO<>();
 		try {
+			// TODO: dev
+			UiCodeGenerator uiGen = new UiCodeGenerator(payload.getTargetTemplateName(), payload.getUiObjects());
+			GenerateResponse rs = new GenerateResponse();
+			rs.setSourceCode(uiGen.generateCode());
+			
+			result.setResult(rs);
 			result.setReturnCode(true);
 		}catch(Exception e) {
 			error(e);

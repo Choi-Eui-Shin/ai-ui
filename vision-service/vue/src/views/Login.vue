@@ -64,7 +64,7 @@ import { errorBox } from "../utils/toast";
 import { mapMutations } from "vuex";
 
 export default {
-    name: "login",
+    name: "loginPage",
     data() {
         return {
             userId: "",
@@ -74,7 +74,7 @@ export default {
 
     mounted() {
         this.$nextTick(() => {
-            this.$refs.userId.focus();
+            this.$.userId.focus();
         });
     },
 

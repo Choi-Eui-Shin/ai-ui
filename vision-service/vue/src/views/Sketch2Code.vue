@@ -1,22 +1,29 @@
 <template>
-    <div>
-        <v-container fluid>
-            <v-row>
-                <v-col cols="12" class="pb-0">
-                    <v-btn color="primary" @click="uploadImage">이미지 분석</v-btn>
-                </v-col>
-            </v-row>
-            <v-row>
-                <v-col cols="9">
-                    <canvas ref="drawCanvas" style="overflow-y: auto; overflow-x: auto; padding: 0; border-style: solid; border-color: antiquewhite;"></canvas>
-                </v-col>
-                <v-col cols="3">
+    <v-container fluid>
+        <Split>
+            <SplitArea :size="70">
+                <v-container fluid>
                     <v-row>
+                        <v-col cols="12" class="pb-2">
+                            <v-btn color="primary" small class="ml-0 mr-1" @click="uploadImage">이미지 분석</v-btn>
+                        <!-- </v-col>
+                        <v-col cols="10" class="pb-1"> -->
+                            <v-btn color="error" small @click="generateCode">소스코드 생성</v-btn>
+                        </v-col>
+                    </v-row>
+                    <v-row>
+                        <canvas ref="drawCanvas" style="overflow-y: auto; overflow-x: auto; padding: 0; border-style: solid; border-color: antiquewhite;"></canvas>
+                    </v-row>
+                </v-container>
+            </SplitArea>
+            <SplitArea :size="30">
+                <v-container fluid>
+                    <v-row class="mt-8">
                         <v-col cols="12">
                             <v-text-field
                                 label="클래스"
                                 hide-details="auto"
-                                outlined
+                                outlined dense
                                 readonly
                                 v-model="className"
                             ></v-text-field>
@@ -25,9 +32,20 @@
                     <v-row>
                         <v-col cols="12">
                             <v-text-field
+                                label="객체 경계"
+                                hide-details="auto"
+                                outlined dense
+                                readonly
+                                v-model="objRect"
+                            ></v-text-field>
+                        </v-col>
+                    </v-row>
+                    <v-row>
+                        <v-col cols="12">
+                            <v-text-field
                                 label="프로퍼티 이름"
                                 hide-details="auto"
-                                outlined
+                                outlined dense
                                 v-model="propertyName"
                                 @input="propertyChanged"
                             ></v-text-field>
@@ -41,14 +59,14 @@
                                 chips
                                 label="이벤트"
                                 multiple
-                                outlined
+                                outlined dense
                                 @input="eventChanged"
                             ></v-select>
                         </v-col>
                     </v-row>
-                </v-col>
-            </v-row>
-        </v-container>
+                </v-container>
+            </SplitArea>
+        </Split>
         <!-- S:이미지 업로드 -->
         <v-dialog
             v-model="dialog"
@@ -94,7 +112,10 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-    </div>
+        <!-- S:SourceView 업로드 -->
+        <SourceViewDialog ref="srcViewer" />
+        <!-- E:SourceView 업로드 -->
+    </v-container>
 </template>
 
 <script>
@@ -102,6 +123,8 @@ import { errorBox, messageBox } from "../utils/toast";
 import * as yolo from "../api/yolo";
 import { fabric } from 'fabric';
 import {disableControlVisible} from "../utils/fabricUtils";
+import SourceViewDialog from "../components/SourceViewDialog.vue";
+import { mapMutations } from 'vuex'
 
 /**
  * http://fabricjs.com/
@@ -110,6 +133,7 @@ export default {
     name: "Sketch2Code",
 
     components: {
+        SourceViewDialog
     },
 
     data() {
@@ -128,6 +152,7 @@ export default {
              * 이벤트 목록
              */
             events: ['click', 'changed'],
+            objRect: '',
             /**
              * 클래스 이름
              */
@@ -148,14 +173,20 @@ export default {
         };
     },
 
-    beforeDestroy () {
+    beforeUnmount () {
         if (typeof window === 'undefined') return;
         window.removeEventListener('resize', this.onResize, { passive: true });
     },
 
     mounted() {
-        this.onResize();
+        let can = this.$refs.drawCanvas;
+        let w = window.innerWidth-80;
+        can.width = w * (3/4);
+        can.height = window.innerHeight-120;
+
         window.addEventListener('resize', this.onResize, { passive: true });
+       
+        // this.onResize();
 
         /**
          * fabric 캔버스
@@ -178,19 +209,18 @@ export default {
             }
         });
         canvas.on('mouse:move', function(opt) {
-        if (this.isDragging) {
-            var e = opt.e;
-            var vpt = this.viewportTransform;
-            vpt[4] += e.clientX - this.lastPosX;
-            vpt[5] += e.clientY - this.lastPosY;
-            this.requestRenderAll();
-            this.lastPosX = e.clientX;
-            this.lastPosY = e.clientY;
-        }
+            if (this.isDragging) {
+                var e = opt.e;
+                var vpt = this.viewportTransform;
+                vpt[4] += e.clientX - this.lastPosX;
+                vpt[5] += e.clientY - this.lastPosY;
+                this.requestRenderAll();
+                this.lastPosX = e.clientX;
+                this.lastPosY = e.clientY;
+            }
         });
         canvas.on('mouse:up', function() {
-            // on mouse up we want to recalculate new interaction
-            // for all objects, so we call setViewportTransform
+            // on mouse up we want to recalculate new interaction for all objects, so we call setViewportTransform
             this.setViewportTransform(this.viewportTransform);
             this.isDragging = false;
             this.selection = true;
@@ -205,39 +235,34 @@ export default {
             opt.e.preventDefault();
             opt.e.stopPropagation();
         });
-    
-
     },
     
     computed: {
     },
     
     methods: {
+        ...mapMutations([
+            'setSelectedTemplate', 'setSelectedMenu', 'setGenerateCode'
+        ]),
+
         onResize () {
-            let can = this.$refs.drawCanvas;
-            let w = window.innerWidth-26;
-            can.width = w * (3/4);
-            can.height = window.innerHeight-120;
+            // let can = this.$refs.drawCanvas;
+            let w = window.innerWidth-80;
+            // can.width = w * (3/4);
+            // can.height = window.innerHeight-120;
+            
+            this.drawCanvas.setHeight(window.innerHeight-120);
+            this.drawCanvas.setWidth(w * (3/4));
+            this.drawCanvas.renderAll();
         },
 
         uploadImage() {
             this.sketchFile = null;
             this.dialog = true;
-
-            // const rect = new fabric.Rect({
-            //     fill: 'red',
-            //     width: 32,
-            //     height: 32,
-            //     borderColor: 'blue'
-            // });
-
-            // rect.setControlVisible('mtr', false);
-
-            // this.drawCanvas.add(rect).setActiveObject(rect);
         },
 
         /**
-         * 
+         * 이미지를 분석한다.
          */
         handleUpload() {
             if (this.sketchFile === null) {
@@ -256,8 +281,7 @@ export default {
             })
             .catch((err) => {
                 errorBox(err);
-            })
-            .finally(() => (this.isLoadErd = false));
+            });
         },
 
         /**
@@ -284,7 +308,7 @@ export default {
         },
         
         /**
-         * UI
+         * UI 요소 클릭
          * @param {*} options 
          */
         clickHandler(options) {
@@ -295,12 +319,15 @@ export default {
                     this.className = obj.classId;
                     this.propertyName = obj.propertyName;
                     this.selectedEvents = obj.events;
+                    let centerX = obj.rect.x + (obj.rect.width/2);
+                    let centerY = obj.rect.y + (obj.rect.height/2);
+                    this.objRect = centerX.toFixed() + "," + centerY.toFixed();
 
                     this.selectedUiObject = obj;
                 }
                 else {
                     this.selectedUiObject = null;
-
+                    this.objRect = '';
                     this.className = '';
                     this.propertyName = '';
                     this.selectedEvents = [];
@@ -308,7 +335,7 @@ export default {
             }
             else {
                 this.selectedUiObject = null;
-
+                this.objRect = '';
                 this.className = '';
                 this.propertyName = '';
                 this.selectedEvents = [];
@@ -320,8 +347,6 @@ export default {
          * @param {*} result 
          */
         showResult(res) {
-            console.log("@.@ ==>", res);
-
             /**
              * 초기화
              */
@@ -338,10 +363,12 @@ export default {
                 elm['events'] = [];
                 this.uiElements.push(elm);
 
-                // let x = elm.rect.x;
-                // let y = elm.rect.y;
-                // let width = elm.rect[2] - elm.rect[0];
-                // let height = elm.rect[3] - elm.rect[1];
+                let text = new fabric.Text(elm['number'].toString(), 
+                                {
+                                    left: elm.rect.x, top: elm.rect.y,
+                                    fontSize: 18, textBackgroundColor: 'rgb(0,200,0)',
+                                });
+                thisCanvas.add(text);
 
                 const rect = new fabric.Rect({
                     fill: 'blue',
@@ -350,7 +377,7 @@ export default {
                     top: elm.rect.y,
                     width: elm.rect.width,
                     height: elm.rect.height,
-                    borderColor: 'blue'
+                    borderColor: 'yellow'
                 });
 
                 // 클릭 이벤트에서 사용할 객체 키
@@ -358,7 +385,8 @@ export default {
 
                 disableControlVisible(rect);
                 // thisCanvas.add(rect);
-                thisCanvas.insertAt(rect, 0);
+                // thisCanvas.insertAt(rect, 0);
+                thisCanvas.insertAt(rect, this.uiElements.length);
             });
 
             /**
@@ -382,7 +410,52 @@ export default {
 
             // 백그라운드 이미지로 출력
             thisCanvas.setBackgroundImage(res.sourceImage, thisCanvas.renderAll.bind(thisCanvas));
-        }
+        },
+
+        /**
+         * 지정된 옵션으로 소스코드를 생성한다.
+         */
+        generateCode() {
+            if(this.uiElements.length == 0) {
+                messageBox("데이터가 없습니다.");
+                return;
+            }
+
+            let payload = {
+                'targetTemplateName': 'CHOI',
+                'uiObjects': this.uiElements
+            };
+
+            yolo.generate(payload).then((response) => {
+                if (response.data.returnCode == true) {
+                    // 소스코드 설정
+                    // let fm = prettier.format(response.data.result.sourceCode, 
+                    //             { semi: false, parser: "babel" });
+
+                    // this.setGenerateCode(fm);
+
+                    this.$refs.srcViewer.showSourceCode(response.data.result.sourceCode);
+                    // const DialogClass = Vue.extend(SourceViewDialog);
+                    // const buttonInstance = new DialogClass();
+                    // buttonInstance.$mount();
+                    // console.log(buttonInstance);
+                    // // document.appendChild(buttonInstance.$el);
+                    // buttonInstance.showSourceCode(response.data.result.sourceCode);
+
+
+                    // this.setGenerateCode(response.data.result.sourceCode);
+
+                    // 화면이동
+                    // this.$emit('gotoScreen', 1);
+                    // this.setSelectedMenu(1);
+                } else {
+                    errorBox(response.data.returnMessage);
+                }
+            })
+            .catch((err) => {
+                errorBox(err);
+            });
+        },
     },
 };
 </script>

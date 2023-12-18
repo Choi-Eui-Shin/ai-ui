@@ -1,0 +1,11 @@
+OMM ${ommFileName}
+<description="">
+{
+#foreach ( $itm in $layout )
+    #if ($StringUtils.isEmpty($itm.array) == false )
+    ${itm.dataType} ${itm.fieldId}<description="${itm.fieldName}" arrayReference="${itm.array}">;
+    #else
+    ${itm.dataType} ${itm.fieldId}<length=${itm.maxLength} decimal=${itm.pointLength} description="${itm.fieldName}">;
+    #end        
+#end
+}

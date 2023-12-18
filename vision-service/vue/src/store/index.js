@@ -11,6 +11,20 @@ export default new Vuex.Store({
         flagNone: false,    // 개발중에는 true로 변경하고 테스트한다.
         flagLogin: false,
         siteCode: "",
+        
+        /**
+         * 선택한 템플릿
+         */
+        selectedTemplate: '',
+        /**
+         * 선택한 메뉴
+         */
+        selectedMenu: 0,
+        /**
+         * 생성한 소스 코드
+         */
+        generateCode: '',
+
     },
     mutations: {
         setUserRole(state, role) {
@@ -32,7 +46,26 @@ export default new Vuex.Store({
 
         logout(state) {
             state.flagLogin = false;
-        }
+        },
+
+        /**
+         * 선택한 템플릿
+         */
+        setSelectedTemplate(state, value) {
+            state.selectedTemplate = value;
+        },
+        /**
+         * 선택한 메뉴
+         */
+        setSelectedMenu(state, value) {
+            state.selectedMenu = value;
+        },   
+        /**
+         * 생성한 소스 코드
+         */
+        setGenerateCode(state, value) {
+            state.generateCode = value;
+        }  
     },
     getters: {
         /**
@@ -80,7 +113,26 @@ export default new Vuex.Store({
          */
         getSiteCode(state) {
             return state.siteCode;
-        }
+        },
+        /**
+         * 선택한 템플릿
+         */
+        getSelectedTemplate(state) {
+            return state.selectedTemplate;
+        },
+        
+        /**
+         * 선택한 메뉴
+         */
+        getSelectedMenu(state) {
+            return state.selectedMenu;
+        },   
+        /**
+         * 생성한 소스 코드
+         */
+        getGenerateCode(state) {
+            return state.generateCode;
+        }  
     },
     actions: {},
     modules: {},

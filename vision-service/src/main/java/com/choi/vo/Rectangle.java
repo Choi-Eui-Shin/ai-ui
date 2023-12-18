@@ -19,11 +19,28 @@ public class Rectangle {
         this.width = width;
         this.height = height;
     }
+    
+    public int getCenterX() {
+    	return this.x + (this.width/2);
+    }
 
+    public int getCenterY() {
+    	return this.y + (this.height/2);
+    }
+
+    /**
+     * 객체의 넓이를 반환한다.
+     * @return
+     */
     public int area() {
         return width * height;
     }
 
+    /**
+     * 지정된 객체와 겹치는 영역의 경계를 반환한다.
+     * @param other
+     * @return
+     */
     public Rectangle intersection(Rectangle other) {
         int x = Math.max(this.x, other.x);
         int y = Math.max(this.y, other.y);

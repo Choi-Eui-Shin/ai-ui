@@ -6,8 +6,9 @@
                 center-active
                 dark
                 v-model="selectedMenu"
+                @change="changeMenu"
             >
-                <v-tab key="s2cPage">스케치를 코드로 변환</v-tab>
+            <v-tab key="s2cPage">UI 스케치</v-tab>
             </v-tabs>
             <v-spacer></v-spacer>
 
@@ -58,7 +59,7 @@
         <v-main>
             <v-tabs-items v-model="selectedMenu">
                 <v-tab-item key="s2cPage">
-                    <Sketch2Code />
+                    <Sketch2Code @gotoScreen="gotoScreen" />
                 </v-tab-item>
             </v-tabs-items>
         </v-main>
@@ -126,12 +127,12 @@ export default {
     name: "App",
 
     components: {
-        Sketch2Code
+        Sketch2Code,
     },
 
     data() {
         return {
-            selectedMenu: "designMain",
+            selectedMenu: 0,
             flagLogin: false,
             /**
              * 비밀번호 변경
@@ -144,15 +145,35 @@ export default {
     },
 
     computed: {
-        ...mapGetters(["isAdmin", "isNone", "isLogin", "getSiteCode"]),
+        ...mapGetters(["isAdmin", "isLogin", "getSelectedMenu"]),
 
         iconName() {
             return this.isLogin == true ? "mdi-logout" : "mdi-key";
         }
     },
 
+    watch: {
+        getSelectedMenu(menuNumber) {
+            this.selectedMenu = menuNumber;
+        }
+    },
+
     methods: {
-        ...mapMutations(['setUserRole', 'logout']),
+        ...mapMutations(['setUserRole', 'logout', 'setSelectedMenu']),
+
+        changeMenu(e) {
+            console.log(e);
+            this.setSelectedMenu(e);
+        },
+
+        /**
+         * 화면이동
+         */
+        gotoScreen(menuNumber) {
+            this.$nextTick(() => {
+                this.selectedMenu = menuNumber;
+            });
+        },
 
         /**
          * 사용자 로그아웃
