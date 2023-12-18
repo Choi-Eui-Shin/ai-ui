@@ -20,4 +20,9 @@ public class YoloResult {
 	 * 원본 이미지
 	 */
 	private String sourceImage;
+	/*
+	 * 이미지 크기
+	 */
+	private int imageWidth;
+	private int imageHeight;
 }

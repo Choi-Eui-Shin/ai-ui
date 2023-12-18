@@ -69,10 +69,19 @@ public class YoloService {
 		    /*
 		     * 모든 객체에 번호를 부여한다.
 		     */
+		    int cap = result.getImageWidth()/3;
 		    int num = 1;
 		    for(YoloObjectEntry ue : finalList) {
 		    	ue.setDepth(1);
 		    	ue.setNumber(num++);
+		    	
+		    	// TODO: 이미지 전체 크기에서 3등분하여 객체의 위치를 결정한다. (LEFT, MIDDLE, RIGHT)
+		    	if(ue.getRect().getX() <= cap)
+		    		ue.setPosition("left");
+		    	else if(cap < ue.getRect().getX() && ue.getRect().getX() <= (cap*2))
+		    		ue.setPosition("middle");
+		    	else if(ue.getRect().getX() > (cap*2))
+		    		ue.setPosition("right");
 		    }
 		    
 		    /*

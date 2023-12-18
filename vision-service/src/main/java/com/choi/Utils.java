@@ -11,6 +11,8 @@ import java.util.Base64;
 import java.util.Calendar;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.text.SimpleDateFormat;
 
 public class Utils {
@@ -128,5 +130,13 @@ public class Utils {
 		MessageDigest m = MessageDigest.getInstance("MD5");
 	    m.update(pwd.getBytes(), 0, pwd.length());     
 	    return new BigInteger(1, m.digest()).toString(16); 
+	}
+	
+	/**
+	 * @param tabCount
+	 * @return
+	 */
+	public static String tab2Space(int tabCount) {
+		return StringUtils.leftPad("", tabCount*4);
 	}
 }

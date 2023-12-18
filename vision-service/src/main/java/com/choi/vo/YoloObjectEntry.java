@@ -50,6 +50,10 @@ public class YoloObjectEntry {
 	 * 부모 객체 번호
 	 */
 	private int parentNumber;
+	/*
+	 * 객체의 위치 (left, middle, right)
+	 */
+	private String position;
 	
 	/**
 	 * 객체의 넓이를 반환한다.

@@ -4,88 +4,90 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.choi.entity.RuleDetail;
+import com.choi.entity.RuleDetailPK;
 import com.choi.ex.ServiceException;
 import com.choi.target.VuetifyGenerator;
 import com.choi.vo.GenerateRequest;
 import com.choi.vo.UiObjectInfo;
+import com.choi.vo.UiRect;
 import com.choi.vo.YoloObjectEntry;
 import com.google.gson.Gson;
 
 public class UiCodeGenerator
 {
-	class UiRect
-	{
-		/*
-		 * 객체의 중심 좌표
-		 */
-		public int centerX;
-		public int centerY;
-		/*
-		 * UI 요소 객체의 정보
-		 */
-		public YoloObjectEntry source;
-		/*
-		 * UI 요소가 위치하는 그리드 상의 좌표
-		 */
-		public int gridX;
-		public int gridY;
-		
-		public boolean flagUsed;
-		public List<UiRect> children;
-		
-		public UiObjectInfo toMeta() {
-			UiObjectInfo meta = new UiObjectInfo();
-			
-			meta.setClassId(source.getClassId());
-			meta.setProperty(source.getPropertyName());
-			meta.setExtraAttribute(source.getExtraAttribute());
-			meta.setEvent(source.getEvents());
-			meta.setGridX(gridX);
-			meta.setGridY(gridY);
-//			private String position;	// LEFT, CENTER, RIGHT
-			
-			if(children != null)
-				meta.setColumnCount(children.size());
-
-			meta.setX(source.getRect().getX());
-			meta.setY(source.getRect().getY());
-			meta.setWidth(source.getRect().getWidth());
-			meta.setHeight(source.getRect().getHeight());
-			
-			return meta;
-		}
-
-		public String toString() {
-			StringBuffer str = new StringBuffer();
-			str.append("depth=").append(source.getDepth()).append(",");
-			str.append("number=").append(source.getNumber()).append(",");
-			if(source.getParentNumber() > 0)
-				str.append("parentNumber=").append(source.getParentNumber()).append(",");
-			if(children != null && children.size() > 0)
-				str.append("children=").append(children.stream().map(m -> m.source.getNumber()).toList()).append(",");
-			str.append("class=").append(source.getClassId()).append(",");
-			str.append("centerX=").append(centerX).append(",");
-			str.append("centerY=").append(centerY).append(",");
-			str.append("gridX=").append(gridX).append(",");
-			str.append("gridY=").append(gridY).append("\n");
-			
-			return str.toString();
-		}
-	}
+//	class UiRect
+//	{
+//		/*
+//		 * 객체의 중심 좌표
+//		 */
+//		public int centerX;
+//		public int centerY;
+//		/*
+//		 * UI 요소 객체의 정보
+//		 */
+//		public YoloObjectEntry source;
+//		/*
+//		 * UI 요소가 위치하는 그리드 상의 좌표
+//		 */
+//		public int gridX;
+//		public int gridY;
+//		
+//		public boolean flagUsed;
+//		public List<UiRect> children;
+//		
+//		public UiObjectInfo toMeta() {
+//			UiObjectInfo meta = new UiObjectInfo();
+//			
+//			meta.setClassId(source.getClassId());
+//			meta.setProperty(source.getPropertyName());
+//			meta.setExtraAttribute(source.getExtraAttribute());
+//			meta.setEvent(source.getEvents());
+//			meta.setGridX(gridX);
+//			meta.setGridY(gridY);
+////			private String position;	// LEFT, CENTER, RIGHT
+//			
+//			if(children != null)
+//				meta.setColumnCount(children.size());
+//
+//			meta.setX(source.getRect().getX());
+//			meta.setY(source.getRect().getY());
+//			meta.setWidth(source.getRect().getWidth());
+//			meta.setHeight(source.getRect().getHeight());
+//			
+//			return meta;
+//		}
+//
+//		public String toString() {
+//			StringBuffer str = new StringBuffer();
+//			str.append("depth=").append(source.getDepth()).append(",");
+//			str.append("number=").append(source.getNumber()).append(",");
+//			if(source.getParentNumber() > 0)
+//				str.append("parentNumber=").append(source.getParentNumber()).append(",");
+//			if(children != null && children.size() > 0)
+//				str.append("children=").append(children.stream().map(m -> m.source.getNumber()).toList()).append(",");
+//			str.append("class=").append(source.getClassId()).append(",");
+//			str.append("centerX=").append(centerX).append(",");
+//			str.append("centerY=").append(centerY).append(",");
+//			str.append("gridX=").append(gridX).append(",");
+//			str.append("gridY=").append(gridY).append("\n");
+//			
+//			return str.toString();
+//		}
+//	}
 	
-	private Comparator<UiRect> gridSort = new Comparator<UiRect>() {
-		@Override
-		public int compare(UiRect o1, UiRect o2) {
-			if(o1.gridY == o2.gridY)
-				return o1.gridX >= o2.gridX ? 1 : -1;
-			else
-				return o1.gridY > o2.gridY ? 1 : -1;
-		}
-	};
+//	private Comparator<UiRect> gridSort = new Comparator<UiRect>() {
+//		@Override
+//		public int compare(UiRect o1, UiRect o2) {
+//			if(o1.gridY == o2.gridY)
+//				return o1.gridX >= o2.gridX ? 1 : -1;
+//			else
+//				return o1.gridY > o2.gridY ? 1 : -1;
+//		}
+//	};
 
 	/*
 	 * 코드 생성 기준이 되는 템플릿 이름
@@ -241,7 +243,7 @@ public class UiCodeGenerator
 	 * @param gen
 	 */
 	private void _generate(List<UiRect> list, IGenerate gen) {
-		list.sort(gridSort);
+		list.sort(UiRect.getGridComparator());
 		
 		int cols = 12/list.size();
 		
@@ -370,6 +372,9 @@ public class UiCodeGenerator
 		 * 코드 생성
 		 */
 		List<UiRect> baseList = this.uiRectList.stream().filter(m -> m.source.getDepth() == 1).toList();
+		/*
+		 * Ver 1 
+		 *
 		VuetifyGenerator gen = new VuetifyGenerator();
 		_generate(new ArrayList<>(baseList), gen);
 		
@@ -379,6 +384,76 @@ public class UiCodeGenerator
 		vg.put("componentName", "ChangeIt");
 		
 		return vg.generate("vuetify.vm");
+		*/
+		
+		/*
+		 * Ver 2
+		 */
+		ScreenBuilder sbuilder = new ScreenBuilder(_makeRule(), new ArrayList<>(baseList));
+		return sbuilder.generateScreen();
+	}
+	
+	private List<RuleDetail> _makeRule() {
+		List<RuleDetail> rules = new ArrayList<>();
+		
+		// label
+		RuleDetailPK pk = new RuleDetailPK();
+		pk.setClsssId("label");
+		RuleDetail detail = new RuleDetail();
+		detail.setDetailPk(pk);
+		detail.setUiTag("LABEL");
+		rules.add(detail);
+		
+		// text
+		pk = new RuleDetailPK();
+		pk.setClsssId("text");
+		detail = new RuleDetail();
+		detail.setDetailPk(pk);
+		detail.setUiTag("TEXT");
+		rules.add(detail);
+		
+		// div
+		pk = new RuleDetailPK();
+		pk.setClsssId("div");
+		detail = new RuleDetail();
+		detail.setDetailPk(pk);
+		detail.setUiTag("DIV");
+		rules.add(detail);
+		
+		// button
+		pk = new RuleDetailPK();
+		pk.setClsssId("button");
+		detail = new RuleDetail();
+		detail.setDetailPk(pk);
+		detail.setUiTag("BUTTON");
+		rules.add(detail);
+
+		// row
+		pk = new RuleDetailPK();
+		pk.setClsssId("_ROW_");
+		detail = new RuleDetail();
+		detail.setDetailPk(pk);
+		detail.setUiTag("v-row");
+		rules.add(detail);
+		
+		// column
+		pk = new RuleDetailPK();
+		pk.setClsssId("_COL_");
+		detail = new RuleDetail();
+		detail.setDetailPk(pk);
+		detail.setUiTag("v-cols");
+		detail.setExtraAttribute("cols=\"3\"");
+		rules.add(detail);
+		
+		// container
+		pk = new RuleDetailPK();
+		pk.setClsssId("_CONTAINER_");
+		detail = new RuleDetail();
+		detail.setDetailPk(pk);
+		detail.setUiTag("v-container");
+		rules.add(detail);
+		
+		return rules;
 	}
 	
 	public static void main(String [] args) {
