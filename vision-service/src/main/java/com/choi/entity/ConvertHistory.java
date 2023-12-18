@@ -15,6 +15,10 @@ public class ConvertHistory {
 	@EmbeddedId
 	private ConvertHistoryPK convertPk;
 	/*
+	 * 화면 타이틀
+	 */
+	private String screenTitle;
+	/*
 	 * 스케치 이미지
 	 */
 	private byte [] image;
