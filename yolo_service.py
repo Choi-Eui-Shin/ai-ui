@@ -15,7 +15,8 @@ YOLOv8 모델을 이용한 이미지 예측
 :return:
 """
 # 자신의 모델 파일 경로에서 모델을 불러옵니다.
-model = YOLO('./runs/detect/train/weights/best.pt')
+# model = YOLO('./runs/detect/train/weights/best.pt')
+model = YOLO('./runs/detect/train5/weights/best.pt')
 
 app = Flask(__name__)
 
@@ -42,6 +43,8 @@ def yolov8():
     # 바이트 배열을 PIL Image로 변환
     image = byte2Pil(request.data)
 
+    width, height = image.size
+
     # 이미지를 예측합니다.
     results = model(image)
 
@@ -66,9 +69,12 @@ def yolov8():
                 },
                 'classId': names_dic[cls_list[i]],
                 'confidence': conf_list[i],
-                'uid': uuid.uuid4().hex
+                'uid': uuid.uuid4().hex,
             }
             obj_list.append(elm)
+
+        res_json['imageWidth'] = width
+        res_json['imageHeight'] = height
 
         res_json['returnCode'] = True
         res_json['result'] = obj_list

@@ -31,7 +31,7 @@ public class RuleDetail {
 	 */
 	private String extraAttribute;
 	/*
-	 * UI 코드
+	 * 기본값
 	 */
-	private String uiCode;
+	private String defaultValue;
 }

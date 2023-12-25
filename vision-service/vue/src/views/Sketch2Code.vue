@@ -1,7 +1,7 @@
 <template>
     <v-container fluid>
-        <Split>
-            <SplitArea :size="70">
+        <v-row>
+            <v-col cols="9">
                 <v-container fluid>
                     <v-row>
                         <v-col cols="12" class="pb-2">
@@ -12,13 +12,37 @@
                         </v-col>
                     </v-row>
                     <v-row>
-                        <canvas ref="drawCanvas" style="overflow-y: auto; overflow-x: auto; padding: 0; border-style: solid; border-color: antiquewhite;"></canvas>
+                        <canvas ref="drawCanvas" style="overflow-y: auto; overflow-x: auto; padding: 0; border-style: solid; border-color: rgb(241, 239, 236);"></canvas>
                     </v-row>
                 </v-container>
-            </SplitArea>
-            <SplitArea :size="30">
+            </v-col>
+            <v-col cols="3">
                 <v-container fluid>
-                    <v-row class="mt-8">
+                    <v-row class="mt-6">
+                        <v-col>
+                            <div style="overflow-y: auto; height: 300px; padding: 0; border-style: solid; border-color: rgb(241, 239, 236);">
+                                <v-list dense>
+                                    <v-list-item-group
+                                        color="primary"
+                                    >
+                                        <v-list-item
+                                            v-for="(item, i) in uiElements"
+                                            :key="i"
+                                            @click="selecedElement(item)"
+                                        >
+                                        <!-- <v-list-item-icon>
+                                            <v-icon v-text="item.icon"></v-icon>
+                                        </v-list-item-icon> -->
+                                        <v-list-item-content>
+                                            <v-list-item-title v-text="'(' + item.number + ') ' + item.classId"></v-list-item-title>
+                                        </v-list-item-content>
+                                        </v-list-item>
+                                    </v-list-item-group>
+                                </v-list>
+                            </div>
+                        </v-col>
+                    </v-row>
+                    <v-row class="mt-2">
                         <v-col cols="12">
                             <v-text-field
                                 label="클래스"
@@ -29,7 +53,7 @@
                             ></v-text-field>
                         </v-col>
                     </v-row>
-                    <v-row>
+                    <v-row class="mt-0">
                         <v-col cols="12">
                             <v-text-field
                                 label="객체 경계"
@@ -40,7 +64,7 @@
                             ></v-text-field>
                         </v-col>
                     </v-row>
-                    <v-row>
+                    <v-row class="mt-0">
                         <v-col cols="12">
                             <v-text-field
                                 label="프로퍼티 이름"
@@ -51,7 +75,7 @@
                             ></v-text-field>
                         </v-col>
                     </v-row>
-                    <v-row>
+                    <v-row class="mt-0">
                         <v-col cols="12">
                             <v-select
                                 v-model="selectedEvents"
@@ -65,8 +89,8 @@
                         </v-col>
                     </v-row>
                 </v-container>
-            </SplitArea>
-        </Split>
+            </v-col>
+        </v-row>
         <!-- S:이미지 업로드 -->
         <v-dialog
             v-model="dialog"
@@ -180,7 +204,7 @@ export default {
 
     mounted() {
         let can = this.$refs.drawCanvas;
-        let w = window.innerWidth-80;
+        let w = window.innerWidth;
         can.width = w * (3/4);
         can.height = window.innerHeight-120;
 
@@ -247,7 +271,7 @@ export default {
 
         onResize () {
             // let can = this.$refs.drawCanvas;
-            let w = window.innerWidth-80;
+            let w = window.innerWidth;
             // can.width = w * (3/4);
             // can.height = window.innerHeight-120;
             
@@ -343,6 +367,16 @@ export default {
         },
 
         /**
+         * TODO: 리스트의 아이템 클릭
+         * @param {*} item 
+         */
+        selecedElement(item) {
+            this.clickHandler({'target': item});
+            this.drawCanvas.setActiveObject(item.object);
+            this.drawCanvas.renderAll();
+        },
+
+        /**
          * 분석 결과를 화면에 표시
          * @param {*} result 
          */
@@ -382,6 +416,7 @@ export default {
 
                 // 클릭 이벤트에서 사용할 객체 키
                 rect.set('uid', elm.uid);
+                elm['object'] = rect;
 
                 disableControlVisible(rect);
                 // thisCanvas.add(rect);

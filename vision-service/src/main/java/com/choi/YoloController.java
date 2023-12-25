@@ -14,13 +14,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.choi.core.UiCodeGenerator;
+import com.choi.vo.DownloadRequest;
 import com.choi.vo.GenerateRequest;
 import com.choi.vo.GenerateResponse;
 import com.choi.vo.ResultVO;
 import com.choi.vo.YoloResult;
 
 import io.swagger.annotations.ApiOperation;
+
+
+import java.io.UnsupportedEncodingException;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 /**
  * @author 최의신
@@ -69,14 +77,10 @@ public class YoloController extends BaseRestController
 	@ApiOperation(value = "소스코드 생성", notes = "주어진 정보로 소스코드를 생성한다.")
 	public ResponseEntity<ResultVO<GenerateResponse>> generate(@RequestBody GenerateRequest payload)
 	{
-//		System.out.println(payload);
-		
 		ResultVO<GenerateResponse> result = new ResultVO<>();
 		try {
-			// TODO: dev
-			UiCodeGenerator uiGen = new UiCodeGenerator(payload.getTargetTemplateName(), payload.getUiObjects());
 			GenerateResponse rs = new GenerateResponse();
-			rs.setSourceCode(uiGen.generateCode());
+			rs.setSourceCode(yoloService.generate(payload));
 			
 			result.setResult(rs);
 			result.setReturnCode(true);
@@ -88,4 +92,34 @@ public class YoloController extends BaseRestController
 		
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
+	
+	/**
+	 * @param payload
+	 * @return
+	 */
+	@PostMapping("/vision/download")
+	@ApiOperation(value = "소스코드 다운로드", notes = "소스코드 다운로드")
+	public ResponseEntity<?> download(@RequestBody DownloadRequest payload)
+	{
+		try {
+			Resource resource = new ByteArrayResource(payload.getCode().getBytes("utf-8"));
+			
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+			headers.setContentDisposition(ContentDisposition.builder("attachment").filename("gen_ui_" + Utils.now(false) + ".vue").build());
+			
+			return new ResponseEntity<Object>(resource, headers, HttpStatus.OK);
+		}catch(Exception e) {
+			error(e);
+			Resource resource = null;
+			try {
+				resource = new ByteArrayResource(e.getMessage().getBytes("utf-8"));
+			} catch (UnsupportedEncodingException e1) {
+			}
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentDisposition(ContentDisposition.builder("attachment").filename("error.txt").build());
+			return new ResponseEntity<Object>(resource, headers, HttpStatus.OK);
+		}
+	}
+
 }

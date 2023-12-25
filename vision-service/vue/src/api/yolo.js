@@ -27,3 +27,12 @@ export function yolov8(imageFile) {
 export function generate(payload) {
     return net.post(`/v1/vision/generate`, payload);
 }
+
+/**
+ * 소스코드 다운로드
+ * @param {*} payload 
+ * @returns 
+ */
+export function download(payload) {
+    return net.post(`/v1/vision/download`, payload, {responseType: "blob"});
+}

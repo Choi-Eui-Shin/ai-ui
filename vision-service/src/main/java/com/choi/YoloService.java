@@ -5,12 +5,22 @@ import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.choi.core.UiCodeGenerator;
+import com.choi.entity.RuleDetail;
+import com.choi.entity.RuleDetailPK;
+import com.choi.entity.RuleMaster;
+import com.choi.entity.jpa.RuleDetailRepository;
+import com.choi.entity.jpa.RuleMasterRepository;
+import com.choi.ex.ServiceException;
+import com.choi.vo.GenerateRequest;
+import com.choi.vo.GenerateResponse;
 import com.choi.vo.Rectangle;
 import com.choi.vo.YoloObjectEntry;
 import com.choi.vo.YoloResult;
@@ -20,9 +30,118 @@ import com.choi.vo.YoloResult;
  *
  */
 @Service
-public class YoloService {
+public class YoloService
+{
 	@Value(value="${yolo.service.url:http}")
 	private String yoloServiceUrl;
+
+	@Autowired
+	private RuleDetailRepository ruleDetailRepository;
+	
+	@Autowired
+	private RuleMasterRepository ruleMasterRepository;
+	
+	/**
+	 * @param payload
+	 * @return
+	 * @throws ServiceException
+	 */
+	public String generate(GenerateRequest payload) throws ServiceException
+	{
+		/*
+		 * TODO: 지정된 템플릿이 현재 사용자가 사용 가능한지 검사한다.
+		 */
+		// payload.getTargetTemplateName()
+//		RuleMaster master = ruleMasterRepository.findByUuid(payload.getTargetTemplateName());
+//		if(master == null)
+//			throw new ServiceException("권한이 없습니다.");
+		
+		/*
+		 * 지정된 템플릿의 룰 정보를 가져온다.
+		 */
+//		List<RuleDetail> rules = ruleDetailRepository.getRule(payload.getTargetTemplateName());
+		List<RuleDetail> rules = _makeRule();	// TODO: 개발용
+		
+		UiCodeGenerator uiGen = new UiCodeGenerator(rules, payload.getUiObjects());
+		return uiGen.generateCode();
+	}
+	
+	/*
+	 * DEBUG
+	 */
+	private List<RuleDetail> _makeRule() {
+		List<RuleDetail> rules = new ArrayList<>();
+		
+		// label
+		RuleDetailPK pk = new RuleDetailPK();
+		pk.setClsssId("label");
+		RuleDetail detail = new RuleDetail();
+		detail.setDetailPk(pk);
+		detail.setUiTag("p");
+		detail.setDefaultValue("LABEL");
+		rules.add(detail);
+		
+		// text
+		pk = new RuleDetailPK();
+		pk.setClsssId("textbox");
+		detail = new RuleDetail();
+		detail.setDetailPk(pk);
+		detail.setUiTag("v-text-field");
+		detail.setExtraAttribute("hide-details=\"auto\"");
+		rules.add(detail);
+		
+		// div
+		pk = new RuleDetailPK();
+		pk.setClsssId("div");
+		detail = new RuleDetail();
+		detail.setDetailPk(pk);
+		detail.setUiTag("div");
+		rules.add(detail);
+		
+		// button
+		pk = new RuleDetailPK();
+		pk.setClsssId("button");
+		detail = new RuleDetail();
+		detail.setDetailPk(pk);
+		detail.setUiTag("v-btn");
+		detail.setExtraAttribute("color=\"primary\"");
+		rules.add(detail);
+
+		// checkbox
+		pk = new RuleDetailPK();
+		pk.setClsssId("checkbox");
+		detail = new RuleDetail();
+		detail.setDetailPk(pk);
+		detail.setUiTag("v-checkbox");
+		rules.add(detail);
+		
+		// row
+		pk = new RuleDetailPK();
+		pk.setClsssId("_ROW_");
+		detail = new RuleDetail();
+		detail.setDetailPk(pk);
+		detail.setUiTag("v-row");
+		rules.add(detail);
+		
+		// column
+		pk = new RuleDetailPK();
+		pk.setClsssId("_COL_");
+		detail = new RuleDetail();
+		detail.setDetailPk(pk);
+		detail.setUiTag("v-cols");
+		detail.setExtraAttribute("cols=\"${SIZE}\"");
+		rules.add(detail);
+		
+		// container
+		pk = new RuleDetailPK();
+		pk.setClsssId("_CONTAINER_");
+		detail = new RuleDetail();
+		detail.setDetailPk(pk);
+		detail.setUiTag("v-container");
+		rules.add(detail);
+		
+		return rules;
+	}	
 	
 	/**
 	 * @param image
@@ -58,6 +177,8 @@ public class YoloService {
 		    }
 		    
 		    result.setSourceImage(imageToString(image));
+		    result.setImageWidth(tmp.getImageWidth());
+		    result.setImageHeight(tmp.getImageHeight());
 		    
 		    /*
 		     * 특정 클래스 제외

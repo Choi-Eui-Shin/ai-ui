@@ -22,4 +22,9 @@ public interface RuleDetailRepository extends JpaRepository<RuleDetail, RuleDeta
 //	 * @return
 //	 */
 //	public BookingRequest getBookingByRequestId(String requestId);
+	
+	@Query(value = "select   m.*\r\n"
+			+ "from     rule_detail m\r\n"
+			+ "where    uuid = :uuid\r\n", nativeQuery = true)			
+	public List<RuleDetail> getRule(@Param("uuid") String uuid);
 }

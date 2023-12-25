@@ -200,6 +200,7 @@ node_modules
 /dist
 /vision-service/vue/dist
 /vision-service/vue/node
+/vision-service/src/main/resources/static
 
 # local env files
 .env.local
