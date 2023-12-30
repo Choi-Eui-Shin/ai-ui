@@ -1,0 +1,4 @@
+FROM mysql:8.0
+
+COPY ./docker.cnf /etc/mysql/conf.d/docker.cnf
+COPY ./aiui.sql /docker-entrypoint-initdb.d/
