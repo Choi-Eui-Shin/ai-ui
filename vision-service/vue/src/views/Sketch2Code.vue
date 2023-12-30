@@ -19,20 +19,6 @@
         <v-row class="mt-0">
             <v-col cols="9">
                 <v-container fluid>
-                    <!-- <v-row>
-                        <v-col cols="12" class="d-flex flex-row pb-2">
-                            <v-btn color="primary" small class="ml-0 mr-1" @click="uploadImage">이미지 분석</v-btn>
-                            <v-btn color="error" small class="mr-1" @click="generateCode">소스코드 생성</v-btn>
-                            <v-select
-                                :items="targetLanguage"
-                                v-model="selectedTarget"
-                                label="생성언어"
-                                solo
-                                dense hide-details="auto"
-                                class="select"
-                            ></v-select>
-                        </v-col>
-                    </v-row> -->
                     <v-row>
                         <v-col cols="12">
                             <canvas ref="drawCanvas" style="overflow-y: auto; overflow-x: auto; padding: 0; border-style: solid; border-color: rgb(241, 239, 236);"></canvas>
@@ -538,26 +524,34 @@ export default {
                                     left: elm.rect.x, top: elm.rect.y,
                                     fontSize: 18, textBackgroundColor: 'rgb(0,200,0)',
                                 });
-                thisCanvas.add(text);
+                disableControlVisible(text);
+                // thisCanvas.add(text);
 
-                const rect = new fabric.Rect({
+                let rect = new fabric.Rect({
                     fill: 'blue',
                     opacity: 0.15,
                     left: elm.rect.x,
                     top: elm.rect.y,
                     width: elm.rect.width,
                     height: elm.rect.height,
+                    // borderColor: 'yellow'
+                });
+                disableControlVisible(rect);
+                
+                let group = new fabric.Group([text, rect], {
+                    left: elm.rect.x,
+                    top: elm.rect.y,
                     borderColor: 'yellow'
                 });
 
                 // 클릭 이벤트에서 사용할 객체 키
-                rect.set('uid', elm.uid);
-                elm['object'] = rect;
+                group.set('uid', elm.uid);
+                elm['object'] = group;
 
-                disableControlVisible(rect);
+                disableControlVisible(group);
                 // thisCanvas.add(rect);
                 // thisCanvas.insertAt(rect, 0);
-                thisCanvas.insertAt(rect, this.uiElements.length);
+                thisCanvas.insertAt(group, this.uiElements.length);
             });
 
             /**
