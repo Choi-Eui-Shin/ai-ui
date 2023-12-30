@@ -31,7 +31,8 @@ public class UiRect {
 		meta.setEvent(source.getEvents());
 		meta.setGridX(gridX);
 		meta.setGridY(gridY);
-//		private String position;	// LEFT, CENTER, RIGHT
+		meta.setPosition(source.getPosition());
+		meta.setLabelText(source.getLabelText());
 		
 		if(children != null)
 			meta.setColumnCount(children.size());

@@ -5,22 +5,12 @@ import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.choi.core.UiCodeGenerator;
-import com.choi.entity.RuleDetail;
-import com.choi.entity.RuleDetailPK;
-import com.choi.entity.RuleMaster;
-import com.choi.entity.jpa.RuleDetailRepository;
-import com.choi.entity.jpa.RuleMasterRepository;
-import com.choi.ex.ServiceException;
-import com.choi.vo.GenerateRequest;
-import com.choi.vo.GenerateResponse;
 import com.choi.vo.Rectangle;
 import com.choi.vo.YoloObjectEntry;
 import com.choi.vo.YoloResult;
@@ -35,114 +25,6 @@ public class YoloService
 	@Value(value="${yolo.service.url:http}")
 	private String yoloServiceUrl;
 
-	@Autowired
-	private RuleDetailRepository ruleDetailRepository;
-	
-	@Autowired
-	private RuleMasterRepository ruleMasterRepository;
-	
-	/**
-	 * @param payload
-	 * @return
-	 * @throws ServiceException
-	 */
-	public String generate(GenerateRequest payload) throws ServiceException
-	{
-		/*
-		 * TODO: 지정된 템플릿이 현재 사용자가 사용 가능한지 검사한다.
-		 */
-		// payload.getTargetTemplateName()
-//		RuleMaster master = ruleMasterRepository.findByUuid(payload.getTargetTemplateName());
-//		if(master == null)
-//			throw new ServiceException("권한이 없습니다.");
-		
-		/*
-		 * 지정된 템플릿의 룰 정보를 가져온다.
-		 */
-//		List<RuleDetail> rules = ruleDetailRepository.getRule(payload.getTargetTemplateName());
-		List<RuleDetail> rules = _makeRule();	// TODO: 개발용
-		
-		UiCodeGenerator uiGen = new UiCodeGenerator(rules, payload.getUiObjects());
-		return uiGen.generateCode();
-	}
-	
-	/*
-	 * DEBUG
-	 */
-	private List<RuleDetail> _makeRule() {
-		List<RuleDetail> rules = new ArrayList<>();
-		
-		// label
-		RuleDetailPK pk = new RuleDetailPK();
-		pk.setClsssId("label");
-		RuleDetail detail = new RuleDetail();
-		detail.setDetailPk(pk);
-		detail.setUiTag("p");
-		detail.setDefaultValue("LABEL");
-		rules.add(detail);
-		
-		// text
-		pk = new RuleDetailPK();
-		pk.setClsssId("textbox");
-		detail = new RuleDetail();
-		detail.setDetailPk(pk);
-		detail.setUiTag("v-text-field");
-		detail.setExtraAttribute("hide-details=\"auto\"");
-		rules.add(detail);
-		
-		// div
-		pk = new RuleDetailPK();
-		pk.setClsssId("div");
-		detail = new RuleDetail();
-		detail.setDetailPk(pk);
-		detail.setUiTag("div");
-		rules.add(detail);
-		
-		// button
-		pk = new RuleDetailPK();
-		pk.setClsssId("button");
-		detail = new RuleDetail();
-		detail.setDetailPk(pk);
-		detail.setUiTag("v-btn");
-		detail.setExtraAttribute("color=\"primary\"");
-		rules.add(detail);
-
-		// checkbox
-		pk = new RuleDetailPK();
-		pk.setClsssId("checkbox");
-		detail = new RuleDetail();
-		detail.setDetailPk(pk);
-		detail.setUiTag("v-checkbox");
-		rules.add(detail);
-		
-		// row
-		pk = new RuleDetailPK();
-		pk.setClsssId("_ROW_");
-		detail = new RuleDetail();
-		detail.setDetailPk(pk);
-		detail.setUiTag("v-row");
-		rules.add(detail);
-		
-		// column
-		pk = new RuleDetailPK();
-		pk.setClsssId("_COL_");
-		detail = new RuleDetail();
-		detail.setDetailPk(pk);
-		detail.setUiTag("v-cols");
-		detail.setExtraAttribute("cols=\"${SIZE}\"");
-		rules.add(detail);
-		
-		// container
-		pk = new RuleDetailPK();
-		pk.setClsssId("_CONTAINER_");
-		detail = new RuleDetail();
-		detail.setDetailPk(pk);
-		detail.setUiTag("v-container");
-		rules.add(detail);
-		
-		return rules;
-	}	
-	
 	/**
 	 * @param image
 	 * @return
@@ -196,7 +78,7 @@ public class YoloService
 		    	ue.setDepth(1);
 		    	ue.setNumber(num++);
 		    	
-		    	// TODO: 이미지 전체 크기에서 3등분하여 객체의 위치를 결정한다. (LEFT, MIDDLE, RIGHT)
+		    	// 이미지 전체 크기에서 3등분하여 객체의 위치를 결정한다. (LEFT, MIDDLE, RIGHT)
 		    	if(ue.getRect().getX() <= cap)
 		    		ue.setPosition("left");
 		    	else if(cap < ue.getRect().getX() && ue.getRect().getX() <= (cap*2))
@@ -252,7 +134,7 @@ public class YoloService
 		    		Rectangle intersection = base.getRect().intersection(ct.getRect());
 		    		if(intersection != null) {
 		    			if((double)ct.area()/(double)intersection.area() == 1.0) {
-		    				System.out.println("@ %d-%d/%d-%d = %f".formatted(i, base.getNumber(), s, ct.getParentNumber(),(double)ct.area()/(double)intersection.area())); 
+//		    				System.out.println("@ %d-%d/%d-%d = %f".formatted(i, base.getNumber(), s, ct.getParentNumber(),(double)ct.area()/(double)intersection.area())); 
 		    				ct.setDepth(base.getDepth()+1);
 		    				ct.setParentNumber(base.getNumber());
 		    			}

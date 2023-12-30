@@ -1,5 +1,6 @@
 package com.choi.entity;
 
+import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
@@ -17,6 +18,7 @@ public class ConvertHistory {
 	/*
 	 * 화면 타이틀
 	 */
+	@Column(length=128)
 	private String screenTitle;
 	/*
 	 * 스케치 이미지
@@ -25,5 +27,6 @@ public class ConvertHistory {
 	/*
 	 * UI 추출정보 (사용자 입력 정보 포함)
 	 */
+	@Column(length=8192)
 	private String metaJson;
 }

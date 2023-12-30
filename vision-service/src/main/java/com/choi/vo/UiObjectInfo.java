@@ -5,6 +5,12 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * UI 요소에 대한 인공지능 추출 정보와 사용자가 입력한 추가 정보를 갖는다.
+ * 
+ * @author 최의신
+ *
+ */
 @Getter
 @Setter
 public class UiObjectInfo {
@@ -26,6 +32,10 @@ public class UiObjectInfo {
 	private int gridX;
 	private int gridY;
 	private String position;	// LEFT, CENTER, RIGHT
+	/*
+	 * 라벨
+	 */
+	private String labelText;
 	/*
 	 * 하위 요소의 갯수
 	 */

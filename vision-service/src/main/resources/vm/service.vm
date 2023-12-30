@@ -1,0 +1,33 @@
+package com.example.service;
+
+import org.springframework.stereotype.Service;
+
+import com.example.vo.ExampleVO;
+
+/**
+ * @author AI
+ *
+ */
+@Service
+public class ExampleService
+{
+    /**
+     * @return
+     */
+    public ExampleVO get() {
+        /*
+         * TODO: 조회를 수행하는 로직 구현
+         */
+        return new ExampleVO();
+    }
+    
+    /**
+     * @param payload
+     */
+    public void post(ExampleVO payload) {
+        /*
+         * TODO: payload를 이용한 로직 구현
+         */
+        return;
+    }
+}

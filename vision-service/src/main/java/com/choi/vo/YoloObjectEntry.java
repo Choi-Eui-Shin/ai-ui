@@ -39,6 +39,10 @@ public class YoloObjectEntry {
 	 */
 	private List<String> events;
 	/*
+	 * 이벤트 핸들러 이름
+	 */
+	private String handlerName;
+	/*
 	 * 추가 속성
 	 */
 	private String extraAttribute;
@@ -54,6 +58,10 @@ public class YoloObjectEntry {
 	 * 객체의 위치 (left, middle, right)
 	 */
 	private String position;
+	/*
+	 * textbox 또는 label의 텍스트를 지정
+	 */
+	private String labelText;
 	
 	/**
 	 * 객체의 넓이를 반환한다.

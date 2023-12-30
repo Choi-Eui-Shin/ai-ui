@@ -17,22 +17,3 @@ export function yolov8(imageFile) {
         }
     });
 }
-
-/**
- * 지정된 정보를 이용하여 소스코드를 생성한다.
- * 
- * @param {*} payload 
- * @returns 
- */
-export function generate(payload) {
-    return net.post(`/v1/vision/generate`, payload);
-}
-
-/**
- * 소스코드 다운로드
- * @param {*} payload 
- * @returns 
- */
-export function download(payload) {
-    return net.post(`/v1/vision/download`, payload, {responseType: "blob"});
-}

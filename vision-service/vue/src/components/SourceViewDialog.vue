@@ -4,7 +4,7 @@
             v-model="dialog"
             hide-overlay
             transition="dialog-bottom-transition"
-            fullscreen persistent
+            fullscreen
             overlay-color="success"
         >
             <v-card>
@@ -15,7 +15,8 @@
                     <v-toolbar-title>UI 소스 코드</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
-                        <v-btn dark text @click="download">다운로드</v-btn>
+                        <v-btn dark outlined text @click="download">다운로드</v-btn>
+                        <v-btn dark outlined text @click="downloadBackend">백앤드 다운로드</v-btn>
                     </v-toolbar-items>
                 </v-toolbar>
                 <v-card-text>
@@ -43,14 +44,13 @@
 import { component as VueCodeHighlight } from 'vue-code-highlight';
 import "vue-code-highlight/themes/duotone-sea.css";
 //import "vue-code-highlight/themes/window.css";
-import * as yolo from "../api/yolo";
-import FileDownload from "js-file-download";
 
 export default {
     data() {
         return {
             dialog: false,
             sourceCode: ''
+            
         };
     },
 
@@ -75,23 +75,16 @@ export default {
         /**
          * 코드 다운로드
          */
-        download() {
-            let payload = {
-                'option': '',
-                'code': this.sourceCode
-            };
-
-            yolo.download(payload).then((response) => {
-                // 파일이름 추출
-                let filename = response.headers['content-disposition'];
-                filename = filename.replace('attachment; filename="', '');
-                filename = filename.replace('"', '');
-
-
-                // 파일 다운로드
-                FileDownload(new Blob([response.data]), decodeURI(filename));
-            });
-        }
+         download() {
+            this.$emit("download", "front");
+        },
+        
+        /**
+         * 백앤드 코드 다운로드
+         */
+         downloadBackend() {
+            this.$emit("download", "backend");
+        },        
     },
 };
 </script>

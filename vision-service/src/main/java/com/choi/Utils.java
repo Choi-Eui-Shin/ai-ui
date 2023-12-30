@@ -139,4 +139,23 @@ public class Utils {
 	public static String tab2Space(int tabCount) {
 		return StringUtils.leftPad("", tabCount*4);
 	}
+	
+	/**
+	 * @param event
+	 * @param handlerName
+	 * @return
+	 */
+	public static String makeFuctionName(String event, String handlerName) {
+		StringBuffer str = new StringBuffer();
+		
+		if(handlerName == null || handlerName.length() == 0)
+			handlerName = "dummy";
+			
+		str.append(handlerName)
+		   .append(event.substring(0, 1).toUpperCase())
+		   .append(event.substring(1))
+		   .append("Handler");
+		
+		return str.toString();
+	}
 }

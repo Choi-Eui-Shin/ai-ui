@@ -1,41 +1,70 @@
 <template>
     <v-container fluid>
         <v-row>
+            <v-col cols="12" class="d-flex flex-row">
+                <v-btn color="primary" small class="ml-3 mt-2 mr-2" @click="uploadImage">이미지 분석</v-btn>
+                <v-btn color="error" small class="mt-2 mr-2" @click="generateCode">소스코드 생성</v-btn>
+                <v-select
+                    :items="targetLanguage"
+                    item-text="text"
+                    item-value="value"
+                    v-model="selectedTarget"
+                    label="코드 템플릿"
+                    solo
+                    dense hide-details="auto"
+                    class="select"
+                ></v-select>
+            </v-col>
+        </v-row>
+        <v-row class="mt-0">
             <v-col cols="9">
                 <v-container fluid>
-                    <v-row>
-                        <v-col cols="12" class="pb-2">
+                    <!-- <v-row>
+                        <v-col cols="12" class="d-flex flex-row pb-2">
                             <v-btn color="primary" small class="ml-0 mr-1" @click="uploadImage">이미지 분석</v-btn>
-                        <!-- </v-col>
-                        <v-col cols="10" class="pb-1"> -->
-                            <v-btn color="error" small @click="generateCode">소스코드 생성</v-btn>
+                            <v-btn color="error" small class="mr-1" @click="generateCode">소스코드 생성</v-btn>
+                            <v-select
+                                :items="targetLanguage"
+                                v-model="selectedTarget"
+                                label="생성언어"
+                                solo
+                                dense hide-details="auto"
+                                class="select"
+                            ></v-select>
                         </v-col>
-                    </v-row>
+                    </v-row> -->
                     <v-row>
-                        <canvas ref="drawCanvas" style="overflow-y: auto; overflow-x: auto; padding: 0; border-style: solid; border-color: rgb(241, 239, 236);"></canvas>
+                        <v-col cols="12">
+                            <canvas ref="drawCanvas" style="overflow-y: auto; overflow-x: auto; padding: 0; border-style: solid; border-color: rgb(241, 239, 236);"></canvas>
+                        </v-col>
                     </v-row>
                 </v-container>
             </v-col>
             <v-col cols="3">
-                <v-container fluid>
-                    <v-row class="mt-6">
+                <v-container fluid class="ml-2 mr-2">
+                    <v-row>
                         <v-col>
                             <div style="overflow-y: auto; height: 300px; padding: 0; border-style: solid; border-color: rgb(241, 239, 236);">
                                 <v-list dense>
                                     <v-list-item-group
                                         color="primary"
+                                        v-model="selectedElement"
                                     >
                                         <v-list-item
-                                            v-for="(item, i) in uiElements"
-                                            :key="i"
-                                            @click="selecedElement(item)"
+                                            v-for="(item) in uiElements"
+                                            :key="item.uid"
+                                            :id="'list-item-' + item.uid"
+                                            @click="selectElement(item)"
                                         >
-                                        <!-- <v-list-item-icon>
-                                            <v-icon v-text="item.icon"></v-icon>
-                                        </v-list-item-icon> -->
-                                        <v-list-item-content>
-                                            <v-list-item-title v-text="'(' + item.number + ') ' + item.classId"></v-list-item-title>
-                                        </v-list-item-content>
+                                            <!-- <v-list-item-icon>
+                                                <v-icon v-text="item.icon"></v-icon>
+                                            </v-list-item-icon> -->
+                                            <v-list-item-content>
+                                                <v-list-item-title v-text="'(' + item.number + ') ' + item.classId"></v-list-item-title>
+                                            </v-list-item-content>
+                                            <v-list-item-icon>
+                                                <v-icon color="error" @click="deleteElement(item)">mdi-delete-forever</v-icon>
+                                            </v-list-item-icon>
                                         </v-list-item>
                                     </v-list-item-group>
                                 </v-list>
@@ -77,15 +106,38 @@
                     </v-row>
                     <v-row class="mt-0">
                         <v-col cols="12">
+                            <v-text-field
+                                label="라벨"
+                                hide-details="auto"
+                                outlined dense
+                                v-model="labelText"
+                                @input="labelChanged"
+                            ></v-text-field>
+                        </v-col>
+                    </v-row>
+                    <v-row class="mt-0">
+                        <v-col cols="12">
                             <v-select
                                 v-model="selectedEvents"
                                 :items="events"
                                 chips
                                 label="이벤트"
+                                hide-details="auto"
                                 multiple
                                 outlined dense
                                 @input="eventChanged"
                             ></v-select>
+                        </v-col>
+                    </v-row>
+                    <v-row class="mt-0">
+                        <v-col cols="12">
+                            <v-text-field
+                                label="이벤트 핸들러 이름"
+                                hide-details="auto"
+                                outlined dense
+                                v-model="handlerName"
+                                @input="handlerChanged"
+                            ></v-text-field>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -136,19 +188,23 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-        <!-- S:SourceView 업로드 -->
-        <SourceViewDialog ref="srcViewer" />
-        <!-- E:SourceView 업로드 -->
+        <!-- S:SourceViewDialog 업로드 -->
+        <SourceViewDialog
+            ref="srcViewer"
+            v-on:download="download" />
+        <!-- E:SourceViewDialog 업로드 -->
     </v-container>
 </template>
 
 <script>
 import { errorBox, messageBox } from "../utils/toast";
 import * as yolo from "../api/yolo";
+import * as main from "../api/main";
 import { fabric } from 'fabric';
 import {disableControlVisible} from "../utils/fabricUtils";
 import SourceViewDialog from "../components/SourceViewDialog.vue";
 import { mapMutations } from 'vuex'
+import FileDownload from "js-file-download";
 
 /**
  * http://fabricjs.com/
@@ -186,13 +242,28 @@ export default {
              */
             propertyName: '',
             /**
+             * text or label 텍스트
+             */
+            labelText: '',
+            /**
              * 선택 이벤트
              */
             selectedEvents: [],
             /**
+             * 이벤트 핸들러 이름
+             */
+            handlerName: '',
+            /**
              * 선택된 UI 요소
              */
-            selectedUiObject: null,
+             selectedUiObject: null,
+             selectedElement: null,
+            /**
+             * 생성언어
+             */
+            targetLanguage: [
+            ],
+            selectedTarget: '',
 
         };
     },
@@ -206,7 +277,7 @@ export default {
         let can = this.$refs.drawCanvas;
         let w = window.innerWidth;
         can.width = w * (3/4);
-        can.height = window.innerHeight-120;
+        can.height = window.innerHeight-140;
 
         window.addEventListener('resize', this.onResize, { passive: true });
        
@@ -259,6 +330,26 @@ export default {
             opt.e.preventDefault();
             opt.e.stopPropagation();
         });
+
+        /**
+         * 템플릿 목록 조회
+         */
+        main.getTemplate().then((response) => {
+            if (response.data.returnCode == true) {
+                this.targetLanguage = [];
+                response.data.result.forEach(m => {
+                    this.targetLanguage.push({
+                        'text': m.ruleTitle,
+                        'value': m.uuid
+                    });
+                });
+            } else {
+                errorBox(response.data.returnMessage);
+            }
+        })
+        .catch((err) => {
+            errorBox(err);
+        });
     },
     
     computed: {
@@ -275,7 +366,7 @@ export default {
             // can.width = w * (3/4);
             // can.height = window.innerHeight-120;
             
-            this.drawCanvas.setHeight(window.innerHeight-120);
+            this.drawCanvas.setHeight(window.innerHeight-140);
             this.drawCanvas.setWidth(w * (3/4));
             this.drawCanvas.renderAll();
         },
@@ -283,6 +374,19 @@ export default {
         uploadImage() {
             this.sketchFile = null;
             this.dialog = true;
+        },
+
+        /**
+         * UI 요소 삭제
+         * @param {*} item 
+         */
+        deleteElement(item) {
+            let pos = this.uiElements.findIndex(m => m.uid === item.uid);
+            if(pos !== -1) {
+                this.uiElements.splice(pos, 1);
+                this.drawCanvas.remove(item.object);
+                this.drawCanvas.renderAll();
+            }
         },
 
         /**
@@ -322,6 +426,26 @@ export default {
         },
 
         /**
+         * 이벤트 핸들러 변경
+         * @param {*} newName 
+         */
+         handlerChanged(newName) {
+            if(this.selectedUiObject !== null) {
+                this.selectedUiObject['handlerName'] = newName;
+            }
+        },
+
+        /**
+         * LABEL 변경
+         * @param {*} newName 
+         */
+         labelChanged(newName) {
+            if(this.selectedUiObject !== null) {
+                this.selectedUiObject['labelText'] = newName;
+            }
+        },
+
+        /**
          * 프로퍼티 변경
          * @param {*} newName 
          */
@@ -335,26 +459,35 @@ export default {
          * UI 요소 클릭
          * @param {*} options 
          */
-        clickHandler(options) {
+        clickHandler(options, flagOther) {
             if(options.target) {
                 let pos = this.uiElements.findIndex(m => m.uid === options.target.uid);
                 if(pos !== -1) {
                     let obj = this.uiElements[pos];
                     this.className = obj.classId;
                     this.propertyName = obj.propertyName;
+                    this.labelText = obj.labelText;
                     this.selectedEvents = obj.events;
                     let centerX = obj.rect.x + (obj.rect.width/2);
                     let centerY = obj.rect.y + (obj.rect.height/2);
                     this.objRect = centerX.toFixed() + "," + centerY.toFixed();
+                    this.handlerName = obj.handlerName;
 
                     this.selectedUiObject = obj;
+                    // 리스트 선택
+                    if(flagOther === undefined) {
+                        this.selectedElement = pos;
+                        document.getElementById("list-item-" + obj.uid).scrollIntoView()
+                    }
                 }
                 else {
                     this.selectedUiObject = null;
                     this.objRect = '';
                     this.className = '';
                     this.propertyName = '';
+                    this.labelText = '';
                     this.selectedEvents = [];
+                    this.handlerName = '';
                 }
             }
             else {
@@ -362,16 +495,18 @@ export default {
                 this.objRect = '';
                 this.className = '';
                 this.propertyName = '';
+                this.labelText = '';
                 this.selectedEvents = [];
+                this.handlerName = '';
             }
         },
 
         /**
-         * TODO: 리스트의 아이템 클릭
+         * 리스트의 아이템 클릭
          * @param {*} item 
          */
-        selecedElement(item) {
-            this.clickHandler({'target': item});
+        selectElement(item) {
+            this.clickHandler({'target': item}, true);
             this.drawCanvas.setActiveObject(item.object);
             this.drawCanvas.renderAll();
         },
@@ -395,6 +530,7 @@ export default {
             res.result.forEach(elm => {
                 elm['propertyName'] = '';
                 elm['events'] = [];
+                elm['handlerName'] = '';
                 this.uiElements.push(elm);
 
                 let text = new fabric.Text(elm['number'].toString(), 
@@ -451,17 +587,22 @@ export default {
          * 지정된 옵션으로 소스코드를 생성한다.
          */
         generateCode() {
+            if(this.selectedTarget.length == 0) {
+                messageBox("생성할 코드 템플릿을 선택하세요");
+                return;
+            }
+
             if(this.uiElements.length == 0) {
                 messageBox("데이터가 없습니다.");
                 return;
             }
 
             let payload = {
-                'targetTemplateName': 'CHOI',
+                'targetTemplateUuid': this.selectedTarget,
                 'uiObjects': this.uiElements
             };
 
-            yolo.generate(payload).then((response) => {
+            main.generate(payload).then((response) => {
                 if (response.data.returnCode == true) {
                     // 소스코드 설정
                     // let fm = prettier.format(response.data.result.sourceCode, 
@@ -491,8 +632,35 @@ export default {
                 errorBox(err);
             });
         },
+
+        /**
+         * UI, 백앤드 소스코드 다운로드
+         */
+        download(downloadType) {
+            let payload = {
+                'targetTemplateUuid': this.selectedTarget,
+                'uiObjects': this.uiElements
+            };
+            main.download(downloadType, payload).then((response) => {
+                // 파일이름 추출
+                let filename = response.headers['content-disposition'];
+                filename = filename.replace('attachment; filename="', '');
+                filename = filename.replace('"', '');
+
+
+                // 파일 다운로드
+                FileDownload(new Blob([response.data]), decodeURI(filename));
+            });
+        },
     },
 };
 </script>
 <style>
+.select {
+    max-width: 200px;
+    width: 200px;
+}
+.v-chip.v-size--default {
+    height: 24px;
+}
 </style>
