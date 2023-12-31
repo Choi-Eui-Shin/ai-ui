@@ -7,4 +7,4 @@ set -e
 echo "@.@ Make Docker image for AI..."
 
 docker rmi -f base-ai
-docker build -f Dockerfile.base -t base-ai .
+docker build -f Dockerfile.base -t base-aiui .

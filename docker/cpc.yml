@@ -1,17 +1,16 @@
 version: "3.0"
 services:
-  captcha-app:
-    container_name: captcha-app
-    image: captcha-app:20230512
+  aiui-y8-svc:
+    container_name: aiui-y8-svc
+    image: aiui-y8-svc:20231231
     environment:
       - AUTH_METHOD=NONE
     volumes:
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
-      - ./captcha_model.pt:/root/captcha_model.pt
-      - ./bmcnn_model.pt:/root/bmcnn_model.pt
+      - ./best.pt:/root/best.pt
     ports:
-      - 8888:8888
+      - 9999:9999
     networks:
       - backend
 

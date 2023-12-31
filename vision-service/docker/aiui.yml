@@ -7,7 +7,6 @@ services:
       - VUE_APP_I18N_LOCALE=ko
       - VUE_APP_I18N_FALLBACK_LOCALE=ko
       - PLANTUML_LIMIT_SIZE=8192
-      - EXP_LIC=AAAAAADdHJ97vQmXtDwO7QTxw4ebEyRDtcUwngxiNan5FStYGQAAAAAA
       - AUTH_METHOD=NONE
       - VUE_APP_AUTH_MODE=NONE    
       - JDBC_URL=jdbc:mysql://aiui-db:3306/aiui?serverTimezone=UTC&useSSL=false&useUnicode=yes&characterEncoding=UTF-8&allowPublicKeyRetrieval=true

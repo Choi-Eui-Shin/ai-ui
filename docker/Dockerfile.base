@@ -1,9 +1,8 @@
-FROM python:3.8-slim-buster
+FROM python:3.9-slim-buster
 
 RUN apt-get update
+
 RUN apt-get -y install libgl1-mesa-glx
 RUN apt-get -y install libglib2.0-0
 
-ADD requirements.txt .
-
-RUN pip install -r requirements.txt
+RUN pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cpu

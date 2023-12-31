@@ -15,8 +15,7 @@ YOLOv8 모델을 이용한 이미지 예측
 :return:
 """
 # 자신의 모델 파일 경로에서 모델을 불러옵니다.
-# model = YOLO('./runs/detect/train/weights/best.pt')
-model = YOLO('./runs/detect/train5/weights/best.pt')
+model = YOLO('./best.pt')
 
 app = Flask(__name__)
 

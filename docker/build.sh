@@ -7,13 +7,7 @@ TAG=$(date '+%Y%m%d')
 echo "@.@ $TAG"
 echo "@.@ Make Docker image..."
 
-cp ../Utils.py .
-cp ../captcha_model.py .
-cp ../MyRect.py .
-cp ../extractor_v4.py .
-cp ../captcha_service.py .
-cp ../bmcnn_service.py .
+cp ../yolo_service.py .
 
-#docker rmi -f dreamsalmon/builder-app:$TAG
-docker build -f Dockerfile -t captcha-app:$TAG .
-#docker push dreamsalmon/builder-app:$TAG
+docker rmi -f aiui-y8-svc:$TAG
+docker build -f Dockerfile -t aiui-y8-svc:$TAG .

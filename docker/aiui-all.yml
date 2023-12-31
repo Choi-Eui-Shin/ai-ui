@@ -1,0 +1,62 @@
+version: "3.0"
+services:
+  aiui-app:
+    container_name: aiui-app
+    image: dreamsalmon/aiui:app-20231231
+    environment:
+      - VUE_APP_I18N_LOCALE=ko
+      - VUE_APP_I18N_FALLBACK_LOCALE=ko
+      - PLANTUML_LIMIT_SIZE=8192
+      - AUTH_METHOD=NONE
+      - VUE_APP_AUTH_MODE=NONE    
+      - JDBC_URL=jdbc:mysql://aiui-db:3306/aiui?serverTimezone=UTC&useSSL=false&useUnicode=yes&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
+      - DB_USER=aiui
+      - DB_PWD=aiui
+      - YOLO_SERVICE_URL=http://aiui-y8-svc:9999      
+    volumes:
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    depends_on:
+      - aiui-db
+    links:
+      - aiui-db
+      - aiui-y8-svc
+    ports:
+      - 80:8080
+    networks:
+      - backend
+
+  aiui-db:
+    container_name: aiui-db
+    image: dreamsalmon/aiui:db-20231231
+    environment:
+      - MYSQL_ROOT_PASSWORD=passw0rd
+    command:
+       --character-set-server=utf8
+       --collation-server=utf8_unicode_ci
+    volumes:
+      - ./aiui-db:/var/lib/mysql
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    ports:
+      - 3306:3306
+    networks:
+      - backend
+
+  aiui-y8-svc:
+    container_name: aiui-y8-svc
+    image: aiui-y8-svc:20231231
+    environment:
+      - AUTH_METHOD=NONE
+    volumes:
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+      - ./best.pt:/root/best.pt
+    ports:
+      - 9999:9999
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
