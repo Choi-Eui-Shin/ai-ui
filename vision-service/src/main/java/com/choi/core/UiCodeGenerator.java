@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 //import java.util.Optional;
 //import com.choi.vo.UiObjectInfo;
+import java.util.stream.Collectors;
 
 import com.choi.entity.RuleDetail;
 import com.choi.entity.RuleDetailPK;
@@ -57,7 +58,7 @@ public class UiCodeGenerator
 	private void _buildTree(UiRect target)
 	{
 		final int number = target.source.getNumber();
-		List<UiRect> subList = this.uiRectList.stream().filter(m -> m.flagUsed == false && m.source.getParentNumber() == number).toList();
+		List<UiRect> subList = this.uiRectList.stream().filter(m -> m.flagUsed == false && m.source.getParentNumber() == number).collect(Collectors.toList());
 		if(subList.size() > 0) {
 			// 사용 표시
 			subList.stream().forEach(m -> m.flagUsed = true);
@@ -130,7 +131,7 @@ public class UiCodeGenerator
 
 		for(int i = 1; i <= yCount; i++) {
 			final int num = i;
-			List<UiRect> list = alignX.stream().filter(m -> m.gridY == num).toList();
+			List<UiRect> list = alignX.stream().filter(m -> m.gridY == num).collect(Collectors.toList());
 			for(int x = 0; x < list.size(); x++)
 				list.get(x).gridX = x+1;
 		}
@@ -150,7 +151,7 @@ public class UiCodeGenerator
 	private void _prepare()
 	{
 		// 1레벨 목록 생성
-		List<UiRect> baseList = this.uiRectList.stream().filter(m -> m.source.getDepth() == 1).toList();
+		List<UiRect> baseList = this.uiRectList.stream().filter(m -> m.source.getDepth() == 1).collect(Collectors.toList());
 		// 사용 표시
 		baseList.stream().forEach(m -> m.flagUsed = true);
 		// 하위 요소에 대해 동일한 처리
@@ -317,7 +318,7 @@ public class UiCodeGenerator
 		/*
 		 * 코드 생성
 		 */
-		List<UiRect> baseList = this.uiRectList.stream().filter(m -> m.source.getDepth() == 1).toList();
+		List<UiRect> baseList = this.uiRectList.stream().filter(m -> m.source.getDepth() == 1).collect(Collectors.toList());
 		/*
 		 * Ver 1 
 		 *

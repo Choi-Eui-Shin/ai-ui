@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.choi.Utils;
 import com.choi.entity.RuleDetail;
@@ -40,7 +41,7 @@ public class VuetifyScreenBuilder extends BaseScreenBuilder
 
 		for(int i = 1; i <= depth.get().gridY; i++) {
 			final int filter = i;
-			List<UiRect> subList = list.stream().filter(m -> m.gridY == filter).toList();
+			List<UiRect> subList = list.stream().filter(m -> m.gridY == filter).collect(Collectors.toList());
 			
 			code.append(Utils.tab2Space(indent+1)).append("<").append(ruleRow.getUiTag()).append(">\n");
 			

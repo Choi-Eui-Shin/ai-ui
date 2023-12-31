@@ -2,6 +2,7 @@ package com.choi.vo;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class UiRect {
 	/*
@@ -52,7 +53,7 @@ public class UiRect {
 		if(source.getParentNumber() > 0)
 			str.append("parentNumber=").append(source.getParentNumber()).append(",");
 		if(children != null && children.size() > 0)
-			str.append("children=").append(children.stream().map(m -> m.source.getNumber()).toList()).append(",");
+			str.append("children=").append(children.stream().map(m -> m.source.getNumber()).collect(Collectors.toList())).append(",");
 		str.append("class=").append(source.getClassId()).append(",");
 		str.append("centerX=").append(centerX).append(",");
 		str.append("centerY=").append(centerY).append(",");

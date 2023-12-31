@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -65,7 +66,7 @@ public class YoloService
 		    /*
 		     * 특정 클래스 제외
 		     */
-		    List<YoloObjectEntry> finalList = tmp.getResult().stream().filter(m -> "screen".equals(m.getClassId()) == false).toList();
+		    List<YoloObjectEntry> finalList = tmp.getResult().stream().filter(m -> "screen".equals(m.getClassId()) == false).collect(Collectors.toList());
 		    result.setResult(new ArrayList<>());
 		    result.getResult().addAll(finalList);
 		    
