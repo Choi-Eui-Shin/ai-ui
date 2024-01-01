@@ -32,14 +32,14 @@ public class VuetifyScreenBuilder extends BaseScreenBuilder
 		
 		list.sort(UiRect.getGridComparator());
 
-		Optional<UiRect> depth = list.stream().max(new Comparator<UiRect>() {
+		Optional<UiRect> gridY = list.stream().max(new Comparator<UiRect>() {
 			@Override
 			public int compare(UiRect o1, UiRect o2) {
 				return o1.gridY >= o2.gridY ? 1 : -1;
 			}
 		});
 
-		for(int i = 1; i <= depth.get().gridY; i++) {
+		for(int i = 1; i <= gridY.get().gridY; i++) {
 			final int filter = i;
 			List<UiRect> subList = list.stream().filter(m -> m.gridY == filter).collect(Collectors.toList());
 			

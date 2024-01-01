@@ -8,14 +8,14 @@
             overlay-color="success"
         >
             <v-card>
-                <v-toolbar dense dark color="primary">
+                <v-toolbar dense dark color="#1A237E">
                     <v-btn icon dark @click="dialog = false">
                         <v-icon>mdi-close</v-icon>
                     </v-btn>
                     <v-toolbar-title>UI 소스 코드</v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
-                        <v-btn dark outlined text @click="download">다운로드</v-btn>
+                        <v-btn dark outlined text @click="download" class="mr-2">다운로드</v-btn>
                         <v-btn dark outlined text @click="downloadBackend">백앤드 다운로드</v-btn>
                     </v-toolbar-items>
                 </v-toolbar>

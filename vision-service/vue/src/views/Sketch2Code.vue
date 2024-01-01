@@ -137,7 +137,7 @@
             max-width="500"
         >
             <v-card>
-                <v-toolbar dense dark color="primary">
+                <v-toolbar dense dark color="#1A237E">
                     <v-btn icon dark @click="dialog = false">
                         <v-icon>mdi-close</v-icon>
                     </v-btn>
@@ -521,8 +521,11 @@ export default {
 
                 let text = new fabric.Text(elm['number'].toString(), 
                                 {
-                                    left: elm.rect.x, top: elm.rect.y,
-                                    fontSize: 18, textBackgroundColor: 'rgb(0,200,0)',
+                                    left: elm.rect.x,
+                                    top: elm.rect.y,
+                                    fontSize: 18,
+                                    // textBackgroundColor: 'rgb(0,200,0)',
+                                    textBackgroundColor: 'rgb(255, 255, 0)',
                                 });
                 disableControlVisible(text);
                 // thisCanvas.add(text);
